@@ -9,15 +9,7 @@
 - [Tables](#tables)
   - [Date Table](#date-table)
   - [Sales Table](#sales-table)
-
-- [Regression](#regression)
-
-- [Pricing](#pricing)
-
-- [Results & Impact](#results--impact)
-
-- [Next Steps](#next-steps)
-
+...
 
 ## The Need for a Comprehensive Data Model
 
