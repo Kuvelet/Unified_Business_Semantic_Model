@@ -77,28 +77,99 @@ in
     #"Inserted DayOfWeekNo"
 ```
 
-### Sales Table
+### 📊 Sales Table
 
-The Sales Table records detailed historical and transactional sales data, making it central to analyzing sales performance, trends, profitability, and customer interactions. The table is routinely updated through scheduled CSV exports from the accounting program.
+#### Purpose
+The **Sales Table** is the central repository capturing detailed transactional information related to product sales. It enables comprehensive analysis of sales performance, revenue generation, profitability, and customer purchasing behaviors over time. The CSV files containing sales data are automatically exported to the company server through scheduled exports from the accounting software, ensuring timely and accurate data integration.
 
-#### Source
-CSV files (`SALES_SUS_2018_2023.csv`, `SALES_SUS_2024.csv`, `SALES_SUS_2025.csv`) imported using Power Query.
+#### Source and Creation Method
+- **Source:** Multiple CSV files (`SALES_SUS_2018_2023.csv`, `SALES_SUS_2024.csv`, `SALES_SUS_2025.csv`)
+- **Creation Method:** Imported, merged, cleaned, and structured using Power Query (M language).
 
-#### **Columns Included:**
+### 🧾 Power Query (M) Code to Transform Sales Data
 
-| Column Name             | Description                                                 | Example             |
-|-------------------------|-------------------------------------------------------------|---------------------|
-| `Customer ID`           | Unique identifier for each customer                         | CUST12345           |
-| `Customer Name`         | Name of the customer                                        | ABC Company Inc.    |
-| `Invoice/CM #`          | Invoice or Credit Memo number                               | INV-0012345         |
-| `Date`                  | Date of the sales transaction                               | 2024-01-15          |
-| `Credit Memo`           | Indicates if transaction is a credit memo                   | Yes/No              |
-| `Drop Ship`             | Indicates drop shipment transaction                         | Yes/No              |
-| `Sold AS (Item ID)`     | Item identifier sold                                        | ITEM98765           |
-| `Sales_Quantity`        | Quantity of items sold                                      | 100                 |
-| `G/L Account`           | General Ledger Account associated with the sale             | 4000-Sales Revenue  |
-| `Sales_Unit Price`      | Unit price of the item sold                                 | 25.00               |
-| `Sales_Amount`          | Total amount for the sales transaction (quantity × unit price)| 2500.00             |
-| `Cost of Sales Account` | G/L account for cost of sales                               | 5000-Cost of Goods  |
-| `Cost of Sales Amount`  | Total cost of goods sold in transaction                     | 1500.00             |
+The following M code is used to load, clean, and prepare sales data from three yearly CSV exports. Each step is explained below.
+
+```powerquery-m
+let
+    // Combine multiple yearly CSV tables into one unified sales table
+    Source = Table.Combine({SALES_SUS_2018_2023, SALES_SUS_2024, SALES_SUS_2025}),
+
+    // Remove unnecessary or unused columns to simplify the model
+    #"Removed Columns" = Table.RemoveColumns(Source,{
+        "Apply to Invoice Number", "Progress Billing Invoice", "Ship By", "Quote", "Quote #", 
+        "Quote Good Thru Date", "Ship Via", "Ship Date", "Date Due", "Sales Tax ID", 
+        "Invoice Note", "Note Prints After Line Items", "Statement Note", 
+        "Stmt Note Prints Before Ref", "Internal Note", "Beginning Balance Transaction", 
+        "AR Date Cleared in Bank Rec", "Number of Distributions", "Invoice/CM Distribution", 
+        "Apply to Invoice Distribution", "Apply To Sales Order", "Apply to Proposal", 
+        "Serial Number", "SO/Proposal Distribution", "Weight", "Stocking Quantity", 
+        "Stocking Unit Price", "Return Authorization", "Receipt Number", 
+        "Voided by Transaction", "Retainage Percent", "Recur Number", "Recur Frequency", 
+        "Ship to Name", "Ship to Address-Line One", "Ship to Address-Line Two", 
+        "Discount Amount", "Discount Date", "Displayed Terms", "Accounts Receivable Account", 
+        "Accounts Receivable Amount", "SO/Proposal Number", "GL Date Cleared in Bank Rec", 
+        "Tax Type", "UPC / SKU", "Inv Acnt Date Cleared In Bank Rec", 
+        "COS Acnt Date Cleared In Bank Rec", "U/M ID", "U/M No. of Stocking Units", 
+        "Job ID", "Sales Tax Agency ID", "Transaction Period", "Transaction Number", 
+        "Description", "Inventory Account"
+    }),
+
+    // Rename 'Item ID' to 'Sold AS (Item ID)' for clarity and consistency
+    #"Item ID Renamed Sold AS" = Table.RenameColumns(#"Removed Columns",{{"Item ID", "Sold AS (Item ID)"}}),
+
+    // Invert the sign of 'Amount' to convert negative values (used in accounting) to positives
+    #"Amount Multiplied by (-1)" = Table.TransformColumns(#"Item ID Renamed Sold AS", {
+        {"Amount", each _ * -1, Currency.Type}
+    }),
+
+    // Rename columns to match semantic model naming conventions
+    #"Renamed Columns" = Table.RenameColumns(#"Amount Multiplied by (-1)", {
+        {"Amount", "Sales_Amount"},
+        {"Quantity", "Sales_Quantity"},
+        {"Unit Price", "Sales_Unit Price"}
+    }),
+
+    // Ensure 'Cost of Sales Amount' is explicitly typed as a number
+    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns", {
+        {"Cost of Sales Amount", type number}
+    }),
+
+    // Replace empty strings in item IDs with the literal string \"(blank)\"
+    #"Blanks replaced with \"(blank)\"" = Table.ReplaceValue(#"Changed Type", "", "(blank)", Replacer.ReplaceValue, {"Sold AS (Item ID)"})
+in
+    #"Blanks replaced with \"(blank)\""
+```
+
+#### Detailed Column Descriptions
+
+| Column Name             | Data Type | Description                                               | Example           |
+|-------------------------|-----------|-----------------------------------------------------------|-------------------|
+| `Customer ID`           | Text      | Unique identifier for the customer                        | CUST1001          |
+| `Customer Name`         | Text      | Name of the customer                                      | ABC Corp.         |
+| `Invoice/CM #`          | Text      | Invoice number or Credit Memo reference                   | INV-2023-10001    |
+| `Date`                  | Date      | Date of the sales transaction                             | 2024-01-20        |
+| `Credit Memo`           | Text      | Indicates if the transaction is a credit memo             | Yes / No          |
+| `Drop Ship`             | Text      | Indicates if item was drop-shipped directly               | Yes / No          |
+| `Sold AS (Item ID)`     | Text      | Identifier for the sold item                              | ITEM56789         |
+| `Sales_Quantity`        | Number    | Quantity of the item sold                                 | 150               |
+| `G/L Account`           | Text      | General Ledger account associated with sales revenue      | 4000-Sales Rev.   |
+| `Sales_Unit Price`      | Currency  | Selling price per unit of the item                        | 49.99             |
+| `Sales_Amount`          | Currency  | Total sales amount (Quantity × Unit Price)                | 7498.50           |
+| `Cost of Sales Account` | Text      | G/L account linked to cost of sales                       | 5000-Cost of Sales|
+| `Cost of Sales Amount`  | Currency  | Total cost of the items sold                              | 4000.00           |
+
+#### Usage and Analytical Value
+This table forms the backbone of sales analytics, allowing the following analyses:
+
+- **Revenue Analysis:** Evaluating total revenue by period, item, customer, and region.
+- **Profitability Analysis:** Determining margins, profitability per item, and cost management effectiveness.
+- **Trend Analysis:** Monitoring sales trends to support forecasting and strategic planning.
+- **Customer Insights:** Understanding customer buying behavior and segmentation.
+
+#### Relationships (Brief Overview)
+- **Linked to the Date Table** via the `Date` column for robust temporal analysis.
+- **Linked to Item Information Table (`Item_Info`)** via `Sold AS (Item ID)` for enriched item-level analytics.
+- **Linked to Customer Information** via `Customer ID` for customer demographic and segmentation insights.
+- **Linked to General Ledger Accounts (`COA_CONS`)** via `G/L Account` to enable detailed financial analytics.
 
