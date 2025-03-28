@@ -223,7 +223,7 @@ The **Customers Table** is a key dimension table used to provide context and met
 - **Source File:** `ISC_Customers.xlsx`. This file is updated through scheduled exports through companys accounting system.
 - **Creation Method:** Loaded into Power BI using Power Query. Certain customer IDs are anonymized to preserve privacy in exported or public reports.
 
-### 🧾 Power Query (M) Code Explanation – Customers Table
+### (M) Code Explanation – Customers Table
 
 The following M code loads customer metadata from Excel, promotes headers, assigns correct data types, and prepares the table for use in customer-level reporting in Power BI.
 
@@ -668,7 +668,7 @@ This table is critical for aligning sales and purchase activity with financial r
 - **Source File:** `COA_CONS.xlsx` (Excel)
 - **Creation Method:** Loaded via Power Query and cleaned/standardized to align account IDs with transactional tables.
 
-#### 🧾 (M) Code Explanation – COA_CONS (Chart of Accounts)
+#### (M) Code Explanation – COA_CONS (Chart of Accounts)
 
 The following M code is used to load and transform the chart of accounts data stored in an Excel file (`COA_CONS.xlsx`). This transformation prepares the data for use in financial analysis within the Power BI model.
 
