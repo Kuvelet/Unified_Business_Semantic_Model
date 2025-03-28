@@ -23,6 +23,8 @@ Company faced significant challenges due to fragmented and inconsistent data sca
 
 ## Tables
 
+Below is a list of tables loaded and structured within Power BI. Each table serves a distinct purpose and is either linked to SQL servers, loaded as-is from flat files or transformed through Power Query (M language). Some tables are created dynamically (e.g., Date Table), while others are merged or cleaned versions of raw exports from the company’s accounting system or supporting databases.
+
 ### Date Table
 
 The Date Table serves as the foundational time dimension for the entire data model, enabling consistent and accurate time-based analytics and comparisons. It provides a standardized way to analyze data across different time periods such as yearly, quarterly, monthly, weekly, and daily views.
@@ -69,6 +71,7 @@ let
 in
     #"Inserted DayOfWeekNo"
 ```
+
 ---
 
 ### Sales Table
@@ -166,4 +169,8 @@ This table forms the backbone of sales analytics, allowing the following analyse
 - **Linked to Item Information Table (`Item_Info`)** via `Sold AS (Item ID)` for enriched item-level analytics.
 - **Linked to Customer Information** via `Customer ID` for customer demographic and segmentation insights.
 - **Linked to General Ledger Accounts (`COA_CONS`)** via `G/L Account` to enable detailed financial analytics.
+
+---
+
+
 
