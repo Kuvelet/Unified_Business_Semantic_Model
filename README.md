@@ -77,7 +77,7 @@ in
     #"Inserted DayOfWeekNo"
 ```
 
-### 📊 Sales Table
+### Sales Table
 
 #### Purpose
 The **Sales Table** is the central repository capturing detailed transactional information related to product sales. It enables comprehensive analysis of sales performance, revenue generation, profitability, and customer purchasing behaviors over time. The CSV files containing sales data are automatically exported to the company server through scheduled exports from the accounting software, ensuring timely and accurate data integration.
