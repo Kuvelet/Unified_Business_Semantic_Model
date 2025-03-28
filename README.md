@@ -9,7 +9,7 @@
 - [Tables](#tables)
   - [Date Table](#date-table)
   - [Sales Table](#sales-table)
-  - [SO Table](#so-table-(sales-orders))
+  - [SO Table](#so-table-sales-orders)
 
 ...
 
