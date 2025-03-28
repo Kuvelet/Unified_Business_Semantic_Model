@@ -263,7 +263,7 @@ This table complements completed sales data by providing visibility into expecte
 
 ---
 
-### Purchases Table (Purchase Orders)
+### Purchases Table
 
 #### Purpose
 The **Purchases Table** records historical procurement transactions, capturing detailed information about goods or services acquired from vendors. It supports analysis of purchasing behavior, cost tracking, vendor performance, and inventory planning.
@@ -368,4 +368,40 @@ in
 - **Linked to Vendor dimension** via `Vendor ID` for supplier-based analysis.
 - **Linked to COA Table (`COA_CONS`)** via `G/L Account` for financial reporting and cost classification.
 
+### PO Table(Purchase Orders)
 
+#### Purpose
+The **Purchase Orders Table** tracks procurement intents — orders placed with vendors for future delivery. Unlike the Purchases Table (which reflects completed transactions), this table captures **open commitments** and allows the business to manage expected inventory inflows, vendor reliability, and purchasing trends.
+
+CSV files are automatically exported from the accounting system and uploaded to the company server as part of a scheduled integration routine.
+
+#### Source and Creation Method
+- **Source Files:** `POJ_2018_2024.csv`, `POJ_2025.csv`
+- **Creation Method:** Combined using Power Query (M language), followed by removal of irrelevant fields and renaming for clarity and consistency.
+
+#### Detailed Column Descriptions
+
+| Column Name       | Data Type | Description                                                | Example          |
+|-------------------|-----------|------------------------------------------------------------|------------------|
+| `Vendor ID`       | Text      | Unique identifier for the vendor                          | VEND0041         |
+| `Vendor Name`     | Text      | Name of the vendor company                                | Global Parts Inc.|
+| `PO #`            | Text      | Unique Purchase Order number                              | PO-2024-00891    |
+| `Date`            | Date      | Date the purchase order was issued                        | 2024-03-15       |
+| `Drop Ship`       | Logical   | Indicates if the order is to be shipped directly to customer | TRUE          |
+| `Item ID`         | Text      | Identifier of the product ordered                         | ITEM47592        |
+| `PO_Quantity`     | Number    | Number of units ordered                                   | 200              |
+| `PO_Unit Price`   | Currency  | Unit cost of the ordered item                             | 11.25            |
+| `PO_Amount`       | Currency  | Total order value (Quantity × Unit Price)                 | 2250.00          |
+| `G/L Account`     | Int64     | General Ledger account used for PO financial tracking     | 5000             |
+
+#### Usage and Analytical Value
+- **Open Order Monitoring:** Understand what inventory is on the way and from which vendors.
+- **Procurement Planning:** Measure purchasing frequency and lead times.
+- **Vendor Performance:** Evaluate if suppliers fulfill POs as promised.
+- **Cash Flow Planning:** Anticipate financial commitments before they're invoiced.
+
+#### Relationships (Brief Overview)
+- **Linked to the Date Table** via `Date` for time-based PO tracking.
+- **Linked to the Item Table (`Item_Info`)** via `Item ID` to analyze product-level demand.
+- **Linked to Vendor dimension** via `Vendor ID` to review supplier-based activity.
+- **Linked to the COA Table (`COA_CONS`)** via `G/L Account` to associate POs with financial accounts.
