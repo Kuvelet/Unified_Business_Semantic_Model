@@ -263,7 +263,7 @@ This table complements completed sales data by providing visibility into expecte
 
 ---
 
-### Purchases Table
+### Purchases Table (Purchase Orders)
 
 #### Purpose
 The **Purchases Table** records historical procurement transactions, capturing detailed information about goods or services acquired from vendors. It supports analysis of purchasing behavior, cost tracking, vendor performance, and inventory planning.
