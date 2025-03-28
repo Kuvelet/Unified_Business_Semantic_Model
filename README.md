@@ -9,6 +9,7 @@
 - [Tables](#tables)
   - [Date Table](#date-table)
   - [Item Info Table](#item-info-table)
+  - [Customers Table](#customers-table)
   - [Sales Table](#sales-table)
   - [SO Table](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
@@ -211,9 +212,40 @@ in
 - **Joined with Number Change Tracker during transformation**
 - **Enriched from Buyersguide_Crossed SQL table**
 
-
 ---
 
+### Customers Table
+
+#### Purpose
+The **Customers Table** is a key dimension table used to provide context and metadata for sales transactions. It enables analysis of customer behaviors, segmentation, and performance. By linking each sales record to its associated customer, the model can generate insights into top clients, region-based performance, and purchasing patterns.
+
+#### Source and Creation Method
+- **Source File:** `ISC_Customers.xlsx` (Excel)
+- **Creation Method:** Loaded into Power BI using Power Query. Certain customer IDs are anonymized to preserve privacy in exported or public reports.
+
+#### Detailed Column Descriptions
+
+| Column Name        | Data Type | Description                                                       | Example            |
+|--------------------|-----------|-------------------------------------------------------------------|--------------------|
+| `Customer ID`      | Text      | Unique identifier used across all sales data                      | CUST1234           |
+| `Customer Name`    | Text      | Full name of the customer or company                              | West Auto Supply   |
+| `Customer Type`    | Text      | Type/category of customer (e.g., Distributor, Installer, Retailer)| Distributor         |
+| `Cust_Segment`     | Text      | Segmentation label for grouping customers                         | Tier 1             |
+| `Cust_ID_Anonym`   | Text      | Anonymized version of the customer ID used for external sharing   | CUST_A01           |
+
+#### Usage and Analytical Value
+- **Customer Segmentation:** Analyze behavior by segment (e.g., Tiers, Regions, Customer Types)
+- **Top Customers Reporting:** Identify high-volume or high-margin clients.
+- **Anonymized Reporting:** Safely share analytics without exposing real customer identities.
+- **Sales Rep Performance:** If combined with sales rep table, helps attribute performance by rep-customer relationship.
+
+#### Relationships (Brief Overview)
+- **Linked to the Sales Table** via `Customer ID`
+- - **Linked to the SO Table** via `Customer ID`
+
+This table plays a vital role in enabling B2B-focused sales analysis, customer profiling, and performance reporting.
+
+---
 
 ### Sales Table
 
