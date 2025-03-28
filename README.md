@@ -260,4 +260,111 @@ in
 
 This table complements completed sales data by providing visibility into expected future business and supporting operational and financial forecasting.
 
+---
+
 ### Purchases Table
+
+#### Purpose
+The **Purchases Table** records historical procurement transactions, capturing detailed information about goods or services acquired from vendors. It supports analysis of purchasing behavior, cost tracking, vendor performance, and inventory planning.
+
+The table serves as a counterpart to the Sales Table and is essential for cost control, margin analysis, and operational decision-making.
+
+#### Source and Creation Method
+- **Source Files:** `PJ_SUS_2018_2024.csv`, `PJ_SUS_2025.csv`
+- **Creation Method:** Combined and transformed using Power Query (M). Extraneous columns are removed, numeric types are enforced, and standard naming conventions are applied.
+
+#### (M) Code to Form Sales Table
+
+Below is a breakdown of the M code used to generate and transform the `Purchases` table in Power BI.
+
+```powerquery-m
+let
+    // Step 1: Combine purchase records from two CSV sources (multiple years)
+    Source = Table.Combine({PJ_SUS_2018_2024, PJ_SUS_2025}),
+
+    // Step 2: Explicitly define data types for relevant columns
+    #"Changed Type" = Table.TransformColumnTypes(Source,{
+        {"Credit Memo", type logical},
+        {"Date", type date},
+        {"Drop Ship", type logical},
+        {"Waiting on Bill", type logical},
+        {"Date Due", type date},
+        {"Discount Date", type date},
+        {"Discount Amount", type number},
+        {"Accounts Payable Account", type text},
+        {"Accounts Payable Amount", Currency.Type},
+        {"Note Prints After Line Items", type logical},
+        {"Applied To Purchase Order", type logical},
+        {"Number of Distributions", Int64.Type},
+        {"Invoice/CM Distribution", Int64.Type},
+        {"Apply to Invoice Distribution", Int64.Type},
+        {"PO Distribution", Int64.Type},
+        {"Quantity", type number},
+        {"Stocking Quantity", type number},
+        {"U/M No. of Stocking Units", Int64.Type},
+        {"G/L Account", type text},
+        {"GL Date Cleared in Bank Rec", type date},
+        {"Unit Price", Currency.Type},
+        {"Stocking Unit Price", type number},
+        {"UPC / SKU", type text},
+        {"Weight", type number},
+        {"Amount", Currency.Type},
+        {"Transaction Number", Int64.Type},
+        {"Transaction Period", Int64.Type},
+        {"Used for Reimbursable Expense", type logical}
+    }),
+
+    // Step 3: Remove unnecessary columns to clean and reduce the dataset
+    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{
+        "Apply to Invoice Number", "Customer SO #", "Waiting on Bill", "Customer ID", "Customer Invoice #",
+        "Ship to Address-Line One", "Ship to Address-Line Two", "Ship to City", "Ship to State",
+        "Ship to Country", "Date Due", "Discount Date", "Discount Amount", "Ship Via", "P.O. Note",
+        "Note Prints After Line Items", "Beginning Balance Transaction", "AP Date Cleared in Bank Rec",
+        "Applied To Purchase Order", "Number of Distributions", "Apply to Invoice Distribution", "PO Number",
+        "PO Distribution", "Stocking Quantity", "Serial Number", "U/M ID", "U/M No. of Stocking Units",
+        "GL Date Cleared in Bank Rec", "Stocking Unit Price", "UPC / SKU", "Weight", "Job ID",
+        "Used for Reimbursable Expense", "Transaction Period", "Transaction Number", "Displayed Terms",
+        "Return Authorization", "Row Type", "Recur Number", "Recur Frequency", "Ship to Name",
+        "Description", "Accounts Payable Amount", "Invoice/CM Distribution", "Ship to Zipcode",
+        "Accounts Payable Account"
+    }),
+
+    // Step 4: Rename key columns for semantic clarity and consistency
+    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{
+        {"Amount", "Purchase_Amount"},
+        {"Quantity", "Purchase_Quantity"},
+        {"Unit Price", "Purchase_Unit Price"}
+    })
+in
+    #"Renamed Columns"
+``
+
+#### Detailed Column Descriptions
+
+| Column Name             | Data Type | Description                                                | Example           |
+|-------------------------|-----------|------------------------------------------------------------|-------------------|
+| `Vendor ID`             | Text      | Unique identifier for the vendor                           | VEND1021          |
+| `Vendor Name`           | Text      | Name of the vendor or supplier                             | Acme Suppliers     |
+| `Invoice/CM #`          | Text      | Invoice or Credit Memo number                              | PJ-2023-00213      |
+| `Date`                  | Date      | Date of the purchase transaction                           | 2024-01-05         |
+| `Credit Memo`           | Text      | Indicates if the transaction is a credit memo              | Yes / No           |
+| `Drop Ship`             | Logical   | True if goods were drop-shipped directly                   | TRUE               |
+| `Item ID` (renamed to `Purchased As (Item ID)`) | Text | Identifier of the purchased item         | ITEM89021          |
+| `Purchase_Quantity`     | Number    | Number of units purchased                                  | 120                |
+| `Purchase_Unit Price`   | Currency  | Cost per unit purchased                                    | 22.50              |
+| `Purchase_Amount`       | Currency  | Total purchase amount (Quantity × Unit Price)              | 2700.00            |
+| `G/L Account`           | Text      | General Ledger account for the purchase transaction        | 5000-Cost of Sales |
+
+#### Usage and Analytical Value
+- **Cost Analysis:** Evaluates cost per item and purchasing trends.
+- **Vendor Analytics:** Tracks performance and purchase volume by vendor.
+- **Margin Monitoring:** Used in combination with Sales data to calculate gross profit.
+- **Inventory Planning:** Informs demand forecasting and restocking cycles.
+
+#### Relationships (Brief Overview)
+- **Linked to the Date Table** via `Date` for time-based analysis.
+- **Linked to the Item Table (`Item_Info`)** via `Purchased As (Item ID)` to understand item-level purchase behavior.
+- **Linked to Vendor dimension** via `Vendor ID` for supplier-based analysis.
+- **Linked to COA Table (`COA_CONS`)** via `G/L Account` for financial reporting and cost classification.
+
+
