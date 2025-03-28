@@ -184,6 +184,53 @@ Sales Order data is exported from the accounting software to the company server 
 - **Source Files:** `SO_SUS_2018_2023.csv`, `SO_SUS_2024.csv`, `SO_SUS_2025.csv`
 - **Creation Method:** The CSVs are combined and transformed using Power Query (M). Unnecessary columns are removed, numeric values are type-corrected, and fields are renamed for clarity.
 
+#### (M) Code to Form Sales Table
+
+```m-language
+let
+    // Combine multiple year-based SO files into one table
+    Source = Table.Combine({SO_SUS_2018_2023, SO_SUS_2024, SO_SUS_2025}),
+
+    // Remove unnecessary or irrelevant columns from the combined data
+    #"Removed Columns" = Table.RemoveColumns(Source, {
+        "Ship By", "Proposal", "Proposal Accepted", "Closed", "Quote #",
+        "Ship to Name", "Ship to Address-Line One", "Ship to Address-Line Two",
+        "Ship to City", "Ship Via", "Sales Tax ID", "Invoice Note",
+        "Note Prints After Line Items", "Statement Note", "Stmt Note Prints Before Ref",
+        "Internal Note", "Number of Distributions", "SO/Proposal Distribution",
+        "Weight", "U/M No. of Stocking Units", "Stocking Quantity", "Stocking Unit Price",
+        "Sales Tax Agency ID", "Discount Amount", "Transaction Period",
+        "Transaction Number", "U/M ID", "Tax Type", "Sales Order/Proposal #",
+        "Ship to State", "Ship to Zipcode", "Ship to Country", "Customer PO",
+        "Displayed Terms", "Accounts Receivable Account", "Accounts Receivable Amount",
+        "UPC / SKU", "Job ID", "Description"
+    }),
+
+    // Ensure Amount and Unit Price columns are interpreted as Currency data types
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns", {
+        {"Amount", Currency.Type},
+        {"Unit Price", Currency.Type}
+    }),
+
+    // Convert Amounts to negative values (likely to align with accounting standards or match invoice logic)
+    #"Amount Multiplied by (-1)" = Table.TransformColumns(#"Changed Type", {
+        {"Amount", each _ * -1, Currency.Type}
+    }),
+
+    // Rename columns to match semantic naming conventions used in the model
+    #"Renamed Columns" = Table.RenameColumns(#"Amount Multiplied by (-1)", {
+        {"Item ID", "Sold As (Item ID)"},
+        {"Amount", "SO_Amount"},
+        {"Quantity", "SO_Quantity"},
+        {"Unit Price", "SO_Unit Price"}
+    }),
+
+    // Replace blank values in the Item ID column with the string "(blank)"
+    #"Blanks replaced with \"(blank)\"" = Table.ReplaceValue(#"Renamed Columns", "", "(blank)", Replacer.ReplaceValue, {"Sold As (Item ID)"})
+in
+    #"Blanks replaced with \"(blank)\""
+```
+
 #### Detailed Column Descriptions
 
 | Column Name             | Data Type | Description                                                | Example           |
