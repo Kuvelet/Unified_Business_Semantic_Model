@@ -7,7 +7,6 @@
 - [Tools](#tools)
 
 - [Tables](#tables)
-
       -[Date Table](#date-table)
 
 - [Regression](#regression)
@@ -78,4 +77,41 @@ in
 ```
 
 ### Sales Table
+## Table of Contents
+
+- [Heading 1](#heading-1)
+  - [Subheading 1.1](#subheading-11)
+  - [Subheading 1.2](#subheading-12)
+    - [Sub-subheading 1.2.1](#sub-subheading-121)
+- [Heading 2](#heading-2)
+  - [Subheading 2.1](#subheading-21)
+- [Heading 3](#heading-3)
+
+## Heading 1
+
+Some text here.
+
+### Subheading 1.1
+
+More text.
+
+### Subheading 1.2
+
+More text here.
+
+#### Sub-subheading 1.2.1
+
+Detailed text here.
+
+## Heading 2
+
+Another section.
+
+### Subheading 2.1
+
+Additional text here.
+
+## Heading 3
+
+Final section.
 
