@@ -81,3 +81,24 @@ in
 
 The Sales Table records detailed historical and transactional sales data, making it central to analyzing sales performance, trends, profitability, and customer interactions. The table is routinely updated through scheduled CSV exports from the accounting program.
 
+#### Source
+CSV files (`SALES_SUS_2018_2023.csv`, `SALES_SUS_2024.csv`, `SALES_SUS_2025.csv`) imported using Power Query.
+
+#### **Columns Included:**
+
+| Column Name             | Description                                                 | Example             |
+|-------------------------|-------------------------------------------------------------|---------------------|
+| `Customer ID`           | Unique identifier for each customer                         | CUST12345           |
+| `Customer Name`         | Name of the customer                                        | ABC Company Inc.    |
+| `Invoice/CM #`          | Invoice or Credit Memo number                               | INV-0012345         |
+| `Date`                  | Date of the sales transaction                               | 2024-01-15          |
+| `Credit Memo`           | Indicates if transaction is a credit memo                   | Yes/No              |
+| `Drop Ship`             | Indicates drop shipment transaction                         | Yes/No              |
+| `Sold AS (Item ID)`     | Item identifier sold                                        | ITEM98765           |
+| `Sales_Quantity`        | Quantity of items sold                                      | 100                 |
+| `G/L Account`           | General Ledger Account associated with the sale             | 4000-Sales Revenue  |
+| `Sales_Unit Price`      | Unit price of the item sold                                 | 25.00               |
+| `Sales_Amount`          | Total amount for the sales transaction (quantity × unit price)| 2500.00             |
+| `Cost of Sales Account` | G/L account for cost of sales                               | 5000-Cost of Goods  |
+| `Cost of Sales Amount`  | Total cost of goods sold in transaction                     | 1500.00             |
+
