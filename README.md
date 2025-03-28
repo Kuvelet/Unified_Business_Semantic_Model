@@ -13,7 +13,7 @@
   - [Sales Table](#sales-table)
   - [SO Table](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
-  - [PO Table](#po-table-purchase-orders)
+  - [PO Table (Purchase Order)](#po-table-purchase-orders)
   - [Chart of Accounts Table](#chart-of-accounts-table)
 
 ...
@@ -576,7 +576,7 @@ in
 
 ---
 
-### PO Table(Purchase Orders)
+### PO Table (Purchase Orders)
 
 #### Purpose
 The **Purchase Orders Table** tracks procurement intents — orders placed with vendors for future delivery. Unlike the Purchases Table (which reflects completed transactions), this table captures **open commitments** and allows the business to manage expected inventory inflows, vendor reliability, and purchasing trends.
