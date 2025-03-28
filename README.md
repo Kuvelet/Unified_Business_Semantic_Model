@@ -7,7 +7,7 @@
 - [Tools](#tools)
 
 - [Tables](#tables)
-- 
+
       -[Date Table](#date-table)
 
 - [Regression](#regression)
