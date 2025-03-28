@@ -9,6 +9,7 @@
 - [Tables](#tables)
   - [Date Table](#date-table)
   - [Sales Table](#sales-table)
+  - [SO Table](#so-table-(sales-orders))
 
 ...
 
@@ -172,5 +173,45 @@ This table forms the backbone of sales analytics, allowing the following analyse
 
 ---
 
+### SO Table (Sales Orders)
+
+#### Purpose
+The **SO Table** (Sales Orders) contains detailed records of open or historical sales orders, proposals, and quotes received from customers. It is primarily used to track future commitments, analyze sales pipelines, manage fulfillment expectations, and assess sales potential that hasn't yet been invoiced. This complements the Sales Table, which tracks completed transactions.
+
+Sales Order data is exported from the accounting software to the company server in CSV format on a scheduled basis.
+
+#### Source and Creation Method
+- **Source Files:** `SO_SUS_2018_2023.csv`, `SO_SUS_2024.csv`, `SO_SUS_2025.csv`
+- **Creation Method:** The CSVs are combined and transformed using Power Query (M). Unnecessary columns are removed, numeric values are type-corrected, and fields are renamed for clarity.
+
+#### Detailed Column Descriptions
+
+| Column Name             | Data Type | Description                                                | Example           |
+|-------------------------|-----------|------------------------------------------------------------|-------------------|
+| `Customer ID`           | Text      | Unique customer identifier                                 | CUST2034          |
+| `Customer Name`         | Text      | Name of the customer placing the order                     | Beta Industries   |
+| `Date`                  | Date      | Date when the sales order was entered                      | 2024-03-10        |
+| `Drop Ship`             | Logical   | Indicates whether this is a drop-shipped order             | TRUE              |
+| `Sales Representative ID` | Text    | Identifier of the responsible sales representative         | REP0003           |
+| `Item ID` (renamed to `Sold As (Item ID)`) | Text | Identifier of the ordered item                 | ITEM32991         |
+| `Quantity` (renamed to `SO_Quantity`) | Number | Quantity ordered                                 | 80                |
+| `Unit Price` (renamed to `SO_Unit Price`) | Currency | Price per unit ordered                         | 45.00             |
+| `Amount` (renamed to `SO_Amount`) | Currency | Total sales order value for the line item                 | 3600.00           |
+| `G/L Account`           | Int64     | Financial ledger account linked to the order               | 4000              |
+
+#### Usage and Analytical Value
+- **Backlog Analysis:** Identifies committed revenue not yet realized.
+- **Sales Pipeline Monitoring:** Tracks pending and open orders.
+- **Demand Planning:** Helps forecast future inventory needs based on pending orders.
+- **Performance Monitoring:** Evaluates quoting and proposal effectiveness over time.
+
+#### Relationships (Brief Overview)
+- **Linked to the Date Table** via the `Date` field for tracking open orders over time.
+- **Linked to the Item Table (`Item_Info`)** via `Sold As (Item ID)` to analyze product-level demand.
+- **Linked to Customer Information** via `Customer ID` to evaluate outstanding commitments by customer.
+
+---
+
+This table complements completed sales data by providing visibility into expected future business and supporting operational and financial forecasting.
 
 
