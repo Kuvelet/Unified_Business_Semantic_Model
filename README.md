@@ -11,6 +11,7 @@
   - [Sales Table](#sales-table)
   - [SO Table](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
+  - [PO Table](#po-table-purchase-orders)
 
 ...
 
