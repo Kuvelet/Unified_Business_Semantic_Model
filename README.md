@@ -12,6 +12,7 @@
   - [SO Table](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
   - [PO Table](#po-table-purchase-orders)
+  - [Chart of Accounts Table](#chart-of-accounts-table)
 
 ...
 
@@ -381,7 +382,7 @@ CSV files are automatically exported from the accounting system and uploaded to 
 - **Source Files:** `POJ_2018_2024.csv`, `POJ_2025.csv`
 - **Creation Method:** Combined using Power Query (M language), followed by removal of irrelevant fields and renaming for clarity and consistency.
 
-### M Code to Form PO Table
+#### M Code to Form PO Table
 
 The following M code loads, cleans, and transforms the Purchase Orders data from two annual sources (`POJ_2018_2024` and `POJ_2025`). This prepares it for use in Power BI’s semantic model.
 
@@ -448,3 +449,37 @@ in
 - **Linked to the Item Table (`Item_Info`)** via `Item ID` to analyze product-level demand.
 - **Linked to Vendor dimension** via `Vendor ID` to review supplier-based activity.
 - **Linked to the COA Table (`COA_CONS`)** via `G/L Account` to associate POs with financial accounts.
+
+---
+
+### Chart of Accounts Table
+
+#### Purpose
+The **COA_CONS** table (Chart of Accounts - Consolidated) serves as a financial dimension table that maps each transaction in the sales and purchases data to its corresponding general ledger (G/L) account. It allows financial reporting to be segmented by revenue categories, cost categories, or any other financial structure defined by the organization.
+
+This table is critical for aligning sales and purchase activity with financial reporting and margin analysis.
+
+#### Source and Creation Method
+- **Source File:** `COA_CONS.xlsx` (Excel)
+- **Creation Method:** Loaded via Power Query and cleaned/standardized to align account IDs with transactional tables.
+
+#### Detailed Column Descriptions
+
+| Column Name             | Data Type | Description                                              | Example               |
+|-------------------------|-----------|----------------------------------------------------------|-----------------------|
+| `Account ID`            | Text      | Unique identifier of the G/L account                     | 4000                  |
+| `G/L Account Description` | Text    | Human-readable description of the account                | Sales Revenue         |
+| `G/L Account Type`      | Text      | High-level classification (e.g., Revenue, Expense, COGS) | Revenue               |
+
+#### Usage and Analytical Value
+- **Financial Reporting:** Enables grouping of transactions into financial categories for reporting.
+- **Margin Analysis:** Links directly to Sales and Purchase tables for cost and revenue comparison.
+- **Filtering and Aggregation:** Used in slicers and filters to control financial views by account group or type.
+
+#### Relationships (Brief Overview)
+- **Linked to the Sales Table** via `G/L Account`
+- **Linked to the Purchases Table** via `G/L Account`
+- **Linked to the PO Table** for aligning purchase commitments with accounting structure
+
+This table allows the business to report on financial results by ledger classification, enabling cleaner income statements, cost of goods sold analysis, and profitability segmentation.
+
