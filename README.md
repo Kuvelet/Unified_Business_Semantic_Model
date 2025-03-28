@@ -274,7 +274,7 @@ The table serves as a counterpart to the Sales Table and is essential for cost c
 - **Source Files:** `PJ_SUS_2018_2024.csv`, `PJ_SUS_2025.csv`
 - **Creation Method:** Combined and transformed using Power Query (M). Extraneous columns are removed, numeric types are enforced, and standard naming conventions are applied.
 
-#### (M) Code to Form Sales Table
+#### (M) Code to Form Purchases Table
 
 Below is a breakdown of the M code used to generate and transform the `Purchases` table in Power BI.
 
@@ -368,6 +368,8 @@ in
 - **Linked to Vendor dimension** via `Vendor ID` for supplier-based analysis.
 - **Linked to COA Table (`COA_CONS`)** via `G/L Account` for financial reporting and cost classification.
 
+---
+
 ### PO Table(Purchase Orders)
 
 #### Purpose
@@ -378,6 +380,47 @@ CSV files are automatically exported from the accounting system and uploaded to 
 #### Source and Creation Method
 - **Source Files:** `POJ_2018_2024.csv`, `POJ_2025.csv`
 - **Creation Method:** Combined using Power Query (M language), followed by removal of irrelevant fields and renaming for clarity and consistency.
+
+### M Code to Form PO Table
+
+The following M code loads, cleans, and transforms the Purchase Orders data from two annual sources (`POJ_2018_2024` and `POJ_2025`). This prepares it for use in Power BI’s semantic model.
+
+```powerquery-m
+let
+    // Step 1: Combine two PO data sources into one unified table
+    Source = Table.Combine({POJ_2018_2024, POJ_2025}),
+
+    // Step 2: Remove unnecessary columns to keep only relevant fields for analysis
+    #"Removed Columns" = Table.RemoveColumns(Source,{
+        "Remit to Address Line 1", "Remit to Address Line 2", "Remit to City", "Remit to State",
+        "Remit to Zip", "Remit to Country", "Closed", "P.O. Good Thru Date", "Customer SO #",
+        "Customer Invoice #", "Customer ID", "Ship to Name", "Ship to Address-Line One",
+        "Ship to Address-Line Two", "Ship to City", "Ship to State", "Ship to Zipcode",
+        "Ship to Country", "Discount Amount", "Displayed Terms", "Accounts Payable Account",
+        "Accounts Payable Amount", "Ship Via", "P.O. Note", "Internal Note",
+        "Note Prints After Line Items", "Number of Distributions", "PO Distribution",
+        "Stocking Quantity", "U/M ID", "U/M No. of Stocking Units", "Stocking Unit Price",
+        "UPC / SKU", "Weight", "Job ID", "Transaction Period", "Transaction Number",
+        "Description"
+    }),
+
+    // Step 3: Assign correct data types to key columns
+    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{
+        {"Amount", Currency.Type},
+        {"Unit Price", Currency.Type},
+        {"Quantity", Int64.Type},
+        {"PO #", type text}
+    }),
+
+    // Step 4: Rename columns to match the semantic model's naming conventions
+    #"Renamed Columns" = Table.RenameColumns(#"Changed Type",{
+        {"Unit Price", "PO_Unit Price"},
+        {"Amount", "PO_Amount"},
+        {"Quantity", "PO_Quantity"}
+    })
+in
+    #"Renamed Columns"
+```
 
 #### Detailed Column Descriptions
 
