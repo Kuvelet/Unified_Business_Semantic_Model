@@ -49,6 +49,9 @@ Created dynamically using **Power Query (M language)** within Power BI. This met
 | `Day`         | Day of the month                                 | 1-31           |
 | `DayOfWeekNo` | Numeric representation of the weekday            | 1 (Monday)     |
 
+Below is the M code to dynamically generate a Date Table within Power BI, which automatically updates from January 1, 2018, to the current date:
+
+
 ```m language
 let
     //Variables
