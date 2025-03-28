@@ -69,6 +69,7 @@ let
 in
     #"Inserted DayOfWeekNo"
 ```
+---
 
 ### Sales Table
 
