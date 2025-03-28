@@ -10,6 +10,7 @@
   - [Date Table](#date-table)
   - [Sales Table](#sales-table)
   - [SO Table](#so-table-sales-orders)
+  - [Purchases Table](#purchases-table)
 
 ...
 
@@ -257,8 +258,6 @@ in
 - **Linked to the Item Table (`Item_Info`)** via `Sold As (Item ID)` to analyze product-level demand.
 - **Linked to Customer Information** via `Customer ID` to evaluate outstanding commitments by customer.
 
----
-
 This table complements completed sales data by providing visibility into expected future business and supporting operational and financial forecasting.
 
-
+### Purchases Table
