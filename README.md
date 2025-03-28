@@ -86,7 +86,7 @@ The **Sales Table** is the central repository capturing detailed transactional i
 - **Source:** Multiple CSV files (`SALES_SUS_2018_2023.csv`, `SALES_SUS_2024.csv`, `SALES_SUS_2025.csv`)
 - **Creation Method:** Imported, merged, cleaned, and structured using Power Query (M language).
 
-#### (M) Code to Transform Sales Data
+#### (M) Code to Form Sales Table
 
 The following M code is used to load, clean, and prepare sales data from three yearly CSV exports. Each step is explained below.
 
