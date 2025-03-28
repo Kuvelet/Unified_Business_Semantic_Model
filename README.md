@@ -463,6 +463,37 @@ This table is critical for aligning sales and purchase activity with financial r
 - **Source File:** `COA_CONS.xlsx` (Excel)
 - **Creation Method:** Loaded via Power Query and cleaned/standardized to align account IDs with transactional tables.
 
+### 🧾 Power Query (M) Code Explanation – COA_CONS (Chart of Accounts)
+
+The following M code is used to load and transform the chart of accounts data stored in an Excel file (`COA_CONS.xlsx`). This transformation prepares the data for use in financial analysis within the Power BI model.
+
+```powerquery-m
+let
+    // Step 1: Load the Excel workbook
+    Source = Excel.Workbook(File.Contents("V:\\[confidential].xlsx"), null, true),
+
+    // Step 2: Access the specific sheet named 'COA_CONS'
+    COA_CONS_Sheet = Source{[Item="COA_CONS",Kind="Sheet"]}[Data],
+
+    // Step 3: Promote the first row as column headers
+    #"Promoted Headers" = Table.PromoteHeaders(COA_CONS_Sheet, [PromoteAllScalars=true]),
+
+    // Step 4: Apply proper data types to each column
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers", {
+        {"Account ID", Int64.Type},
+        {"Account Description", type text},
+        {"Account Type", type text}
+    }),
+
+    // Step 5: Rename columns to match semantic naming standards
+    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {
+        {"Account Description", "G/L Account Description"},
+        {"Account Type", "G/L Account Type"}
+    })
+in
+    #"Renamed Columns"
+```
+
 #### Detailed Column Descriptions
 
 | Column Name             | Data Type | Description                                              | Example               |
