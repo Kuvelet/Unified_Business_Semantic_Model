@@ -88,7 +88,7 @@ The **Item_Info** table serves as the central item dimension, containing key met
 This table enables robust item-level analytics by standardizing descriptions, categories, and cross-references. It also merges external references and catalog data for enriched analysis.
 
 #### Source and Creation Method
-- **Primary Source:** `SUS_SAGE_ITEM_CROSS.xlsx`
+- **Primary Source:** `SQL Server` Catalog_Items
 - **Supplementary Tables (SQL Server):**
   - `Number_Change_Track_Table`: Used during transformation to update obsolete part numbers.
   - `Buyersguide_Crossed`: Merged into the final result for catalog-based enrichment.
@@ -220,8 +220,44 @@ in
 The **Customers Table** is a key dimension table used to provide context and metadata for sales transactions. It enables analysis of customer behaviors, segmentation, and performance. By linking each sales record to its associated customer, the model can generate insights into top clients, region-based performance, and purchasing patterns.
 
 #### Source and Creation Method
-- **Source File:** `ISC_Customers.xlsx` (Excel)
+- **Source File:** `ISC_Customers.xlsx`. This file is updated through scheduled exports through companys accounting system.
 - **Creation Method:** Loaded into Power BI using Power Query. Certain customer IDs are anonymized to preserve privacy in exported or public reports.
+
+### 🧾 Power Query (M) Code Explanation – Customers Table
+
+The following M code loads customer metadata from Excel, promotes headers, assigns correct data types, and prepares the table for use in customer-level reporting in Power BI.
+
+```powerquery-m
+let
+    // Step 1: Load the Excel workbook from the network path
+    Source = Excel.Workbook(File.Contents("V:\\[confidential].xlsx"), null, true),
+
+    // Step 2: Select the worksheet named 'All_Cust_Info'
+    All_Cust_Info_Sheet = Source{[Item="All_Cust_Info", Kind="Sheet"]}[Data],
+
+    // Step 3: Temporarily assign text type to all columns before header promotion
+    #"Changed Type" = Table.TransformColumnTypes(All_Cust_Info_Sheet, {
+        {"Column1", type text},
+        {"Column2", type text},
+        {"Column3", type text},
+        {"Column4", type text},
+        {"Column5", type text}
+    }),
+
+    // Step 4: Promote the first row to headers
+    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+
+    // Step 5: Assign correct data types to each column after promotion
+    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers", {
+        {"Customer ID", type text},
+        {"Customer Name", type text},
+        {"Customer Type", type text},
+        {"Cust_Segment", type text},
+        {"Cust_ID_Anonym", type text}
+    })
+in
+    #"Changed Type1"
+``
 
 #### Detailed Column Descriptions
 
@@ -241,7 +277,7 @@ The **Customers Table** is a key dimension table used to provide context and met
 
 #### Relationships (Brief Overview)
 - **Linked to the Sales Table** via `Customer ID`
-- - **Linked to the SO Table** via `Customer ID`
+-  **Linked to the SO Table** via `Customer ID`
 
 This table plays a vital role in enabling B2B-focused sales analysis, customer profiling, and performance reporting.
 
@@ -632,7 +668,7 @@ This table is critical for aligning sales and purchase activity with financial r
 - **Source File:** `COA_CONS.xlsx` (Excel)
 - **Creation Method:** Loaded via Power Query and cleaned/standardized to align account IDs with transactional tables.
 
-### 🧾 Power Query (M) Code Explanation – COA_CONS (Chart of Accounts)
+#### 🧾 (M) Code Explanation – COA_CONS (Chart of Accounts)
 
 The following M code is used to load and transform the chart of accounts data stored in an Excel file (`COA_CONS.xlsx`). This transformation prepares the data for use in financial analysis within the Power BI model.
 
