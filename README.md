@@ -8,6 +8,7 @@
 
 - [Tables](#tables)
   - [Date Table](#date-table)
+  - [Item Info Table](#item-info-table)
   - [Sales Table](#sales-table)
   - [SO Table](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
@@ -77,6 +78,142 @@ in
 ```
 
 ---
+
+### Item Info Table
+
+#### Purpose
+The **Item_Info** table serves as the central item dimension, containing key metadata used across sales, purchase, and inventory tables. It ensures product consistency and traceability, even when part numbers evolve over time due to OE changes or engineering updates — a common need in the automotive industry.
+
+This table enables robust item-level analytics by standardizing descriptions, categories, and cross-references. It also merges external references and catalog data for enriched analysis.
+
+#### Source and Creation Method
+- **Primary Source:** `SUS_SAGE_ITEM_CROSS.xlsx`
+- **Supplementary Tables (SQL Server):**
+  - `Number_Change_Track_Table`: Used during transformation to update obsolete part numbers.
+  - `Buyersguide_Crossed`: Merged into the final result for catalog-based enrichment.
+
+- **Creation Method:**
+  - Loaded via Power Query.
+  - Merged with `Number_Change_Track_Table` to replace superseded `First_SUS#` values with the latest `Final_SUS#`.
+  - Enriched with automotive application data from `Buyersguide_Crossed`.
+
+#### Special Handling: Superseded Part Numbers
+
+In the automotive industry, it’s common for part numbers to be superseded over time. To manage this:
+
+- The **`Number_Change_Track_Table`** includes:
+  - `First_SUS#`: The old part number being replaced.
+  - `ChangeDate`: When the change occurred.
+  - `Final_SUS#`: The new replacement part number.
+
+- This table is not loaded into the Power BI data model directly, but used in **Power Query transformations**.
+- The merge ensures all outdated part numbers in `Item_Info` are updated to the most recent version, maintaining a consistent identifier (`Final_SUS#`) across time-series data and preventing fragmentation in analysis.
+
+#### Additional Enrichment: Buyers Guide Merge
+
+To provide rich automotive catalog context, `Item_Info` is further enriched with data from the **`Buyersguide_Crossed`** SQL table, which includes:
+
+- Vehicle compatibility (Make, Model, Year)
+- OEM and aftermarket cross-references
+- Application-specific part descriptions
+- Quantity required per vehicle
+- Opposite-side part suggestions
+
+This allows the model to answer real-world catalog questions such as:
+- “What does this part fit?”
+- “What is the OE number for this SKU?”
+- “Is there an opposite side part I should stock?”
+
+#### (M) Code to Form Item Info Table
+
+This M code loads and transforms item metadata from a SQL Server table. It includes logic for superseded part number resolution and catalog enrichment. These transformations ensure SKU continuity and complete vehicle fitment context — which is critical for operations in the automotive aftermarket.
+
+```powerquery-m
+let
+    // Step 1: Connect to SQL Server and load the item master table
+    Source = Sql.Database("SERVER_NAME", "Suspensia_DB"),
+    ItemMaster = Source{[Schema="dbo", Item="SUS_SAGE_ITEM_CROSS"]}[Data],
+
+    // Step 2: Promote the first row to column headers (if needed)
+    #"Promoted Headers" = Table.PromoteHeaders(ItemMaster, [PromoteAllScalars=true]),
+
+    // Step 3: Set data types for core fields
+    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers", {
+        {"Item ID", type text},
+        {"Item Description", type text},
+        {"Description for Sales", type text},
+        {"Description for Purchases", type text},
+        {"Suspensia Cross", type text},
+        {"TYPE", type text}
+    }),
+
+    // Step 4: Rename columns for semantic clarity
+    #"Renamed Columns" = Table.RenameColumns(#"Changed Type", {
+        {"Suspensia Cross", "Before_Superseed"},
+        {"TYPE", "PL or SUS"},
+        {"Item ID", "Sold As (Item ID)"}
+    }),
+
+    // Step 5: Merge with Number_Change_Track table to replace outdated part numbers
+    #"Merged Number_Change_Track" = Table.NestedJoin(#"Renamed Columns", {"Before_Superseed"}, Number_Change_Track, {"FirstSus#"}, "Number_Change_Track", JoinKind.LeftOuter),
+
+    // Step 6: Expand final part number from tracking table
+    #"Expanded NumberChangeTrack_Q" = Table.ExpandTableColumn(#"Merged Number_Change_Track", "Number_Change_Track", {"FinalSus#"}, {"FinalSus#"}) ,
+
+    // Step 7: Use final number if available, else fallback to original
+    #"Added Conditional Column" = Table.AddColumn(#"Expanded NumberChangeTrack_Q", "SUS#", each if [#"FinalSus#"] = null then [Before_Superseed] else [#"FinalSus#"]),
+
+    // Step 8: Remove temp fields
+    #"Removed Columns" = Table.RemoveColumns(#"Added Conditional Column",{"Before_Superseed", "FinalSus#"}),
+
+    // Step 9: Ensure consistent data type
+    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns",{{"SUS#", type text}}),
+
+    // Step 10: Merge BuyersGuide catalog data from SQL
+    #"Merged Queries" = Table.NestedJoin(#"Changed Type1", {"SUS#"}, BuyersGuide_Crossed, {"Sus"}, "BuyersGuide_Crossed", JoinKind.LeftOuter),
+
+    // Step 11: Expand catalog fields
+    #"Expanded BuyersGuide_Crossed_Q" = Table.ExpandTableColumn(#"Merged Queries", "BuyersGuide_Crossed", {"Category", "OppositeSide"}, {"Category", "OppositeSide"}),
+
+    // Step 12: Remove duplicate item entries
+    #"Removed Duplicates" = Table.Distinct(#"Expanded BuyersGuide_Crossed_Q", {"Sold As (Item ID)"})
+in
+    #"Removed Duplicates"
+```
+
+#### Detailed Column Descriptions
+
+| Column Name             | Data Type | Description                                                  | Example             |
+|-------------------------|-----------|--------------------------------------------------------------|---------------------|
+| `Sold As (Item ID)`     | Text      | Primary identifier (includes resolved supersessions)         | ITEM54321           |
+| `Item Description`      | Text      | Generic item name                                             | Rear Shock Absorber |
+| `Description for Sales` | Text      | Label shown on sales documents or dashboards                 | Rear Shock - Std    |
+| `Description for Purchases` | Text  | Used internally for procurement reference                    | Absorber Rear S/22  |
+| `PL or SUS`             | Text      | Product line or brand group identifier                       | PL123               |
+| `SUS#`                  | Text      | Original part number (may be updated by merge)               | SUS56789            |
+| `Category`              | Text      | Item classification for filtering                            | Suspension          |
+| `OppositeSide`          | Text      | Alternate item ID (e.g., right-side counterpart)             | ITEM54322           |
+| `OEM_Crosses`           | Text      | Original equipment manufacturer (OE) references              | 12345678            |
+| `Aftermarket_Crosses`   | Text      | Alternate brands with matching specs                         | AM4321              |
+| `Application`           | Text      | Vehicles that use this part (e.g., Ford Focus 2015-2018)     | Toyota Corolla 18–21|
+| `Qty_Per_Vehicle`       | Number    | Quantity needed per vehicle                                  | 2                   |
+
+> **Note:** Not all enrichment fields may be used in the data model directly but are available for lookup and dynamic analysis when needed.
+
+#### Usage and Analytical Value
+- **SKU Performance Tracking:** Maintains SKU continuity even across part number changes.
+- **Cross-Sell and Recommendations:** Enables pairing items like left/right-side parts.
+- **Catalog Lookup:** Provides full visibility into vehicle fitment, crosses, and part functions.
+- **Standardized Item Reporting:** Centralizes descriptions and categories for clean dashboards.
+
+#### Relationships (Brief Overview)
+- **Linked to Sales, Purchases, and PO Tables** via standardized `Item ID`
+- **Joined with Number Change Tracker during transformation**
+- **Enriched from Buyersguide_Crossed SQL table**
+
+
+---
+
 
 ### Sales Table
 
