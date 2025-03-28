@@ -9,6 +9,7 @@
 - [Tables](#tables)
   - [Date Table](#date-table)
   - [Sales Table](#sales-table)
+
 ...
 
 ## The Need for a Comprehensive Data Model
