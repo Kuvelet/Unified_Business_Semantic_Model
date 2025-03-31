@@ -815,3 +815,69 @@ in
 - **Used in filters, slicers, and role-based visuals**
 
 ---
+
+### Invoices & Job IDs
+
+#### Purpose
+The **Invoices_JobIDs_Bridge** table is a lightweight bridge dimension that consolidates all unique `Invoice/CM #` and `Job ID` values across multiple transactional tables: Sales, Sales Orders, Purchases, and Purchase Orders.
+
+This table acts as a **central mapping layer**, enabling unified relationships between transaction types and supporting flexible reporting and filtering on shared identifiers such as invoices and job numbers.
+
+#### Source and Creation Method
+- **Created using DAX** as a calculated table in Power BI.
+- Combines values from:  
+  - `Sales_SUS`  
+  - `SO_SUS`  
+  - `PJ_SUS`  
+  - `POJ_SUS`  
+
+####  DAX Definition
+
+```DAX
+Invoices_JobIDs_Bridge =
+DISTINCT (
+    UNION (
+        SELECTCOLUMNS(Sales_SUS,
+            "Invoice_Job_ID", Sales_SUS[Invoice/CM #],
+            "Job_ID", Sales_SUS[Job ID]
+        ),
+        SELECTCOLUMNS(SO_SUS,
+            "Invoice_Job_ID", SO_SUS[Invoice/CM #],
+            "Job_ID", SO_SUS[Job ID]
+        ),
+        SELECTCOLUMNS(PJ_SUS,
+            "Invoice_Job_ID", PJ_SUS[Invoice/CM #],
+            "Job_ID", PJ_SUS[Job ID]
+        ),
+        SELECTCOLUMNS(POJ_SUS,
+            "Invoice_Job_ID", POJ_SUS[PO #],
+            "Job_ID", POJ_SUS[Job ID]
+        )
+    )
+)
+```
+
+#### Column Descriptions
+
+| Column Name      | Data Type | Description                                                              | Example           |
+|------------------|-----------|--------------------------------------------------------------------------|-------------------|
+| `Invoice_Job_ID` | Text      | Invoice number, Credit Memo number, or Purchase Order number             | INV-2024-00123    |
+| `Job_ID`         | Text      | Internal job reference or identifier, if present                         | JOB-00988         |
+
+
+#### Usage and Analytical Value
+
+- **Model Bridge:** Connects different fact tables that reference shared invoice or job IDs.
+- **Simplified Relationships:** Allows you to join Sales, Purchases, SOs, and POs without duplicating logic.
+- **Cross-Transaction Visibility:** Enables filters and slicers that work across transaction types.
+- **Future-Proof:** Automatically includes any new combinations as long as they're present in one of the source tables.
+
+
+#### Relationships
+
+- Linked to:
+  - `Sales_SUS` via `Invoice/CM #` or `Job ID`
+  - `SO_SUS` via `Invoice/CM #` or `Job ID`
+  - `PJ_SUS` via `Invoice/CM #` or `Job ID`
+  - `POJ_SUS` via `PO #` or `Job ID`
+
