@@ -960,3 +960,70 @@ DISTINCT (
   - `PJ_SUS` via `Invoice/CM #` and `Job ID`
   - `POJ_SUS` via `PO #` and `Job ID`
 
+---
+
+
+### Sales Ranking Table
+
+#### Purpose
+The **SUSP_Sales_Rank** table provides a unified sales ranking of automotive parts across the U.S. market. It includes sales data not only from Suspensia but also from major competitors and platforms, making it a comprehensive reference point for comparing product performance in the national landscape.
+
+This table is especially useful for identifying high-volume SKUs, market demand, and strategic positioning.
+
+> ℹ This table is sourced from SQL Server and will be expanded and documented in a separate project focused on competitive market intelligence and cross-platform sales insights.
+
+#### Source and Creation Method
+
+- **Source:** SQL Server database
+- **Table:** `dbo.SUSP_Sales_Rank`
+- **Loading Method:** DirectQuery or import via Power BI dataflows
+- **Scope:** Covers total U.S. sales quantities, including third-party and competitive data
+- **Usage:** Joined or related to internal part references to enable direct comparison with in-house SKU performance
+
+
+#### Example Power Query (M) Stub (for illustration)
+
+```powerquery-m
+let
+    // Connect to SQL Server
+    Source = Sql.Database("SERVER_NAME", "Sales_Ranking_DB"),
+
+    // Access the SUSP_Sales_Rank table
+    SUSP_Sales_Rank = Source{[Schema="dbo", Item="SUSP_Sales_Rank"]}[Data],
+
+    // Set correct data types for each column
+    #"Changed Type" = Table.TransformColumnTypes(SUSP_Sales_Rank, {
+        {"Suspensia", type text},
+        {"Part Number", type text},
+        {"US_Sales_Qty", Int64.Type},
+        {"US_Sales_Rank", Int64.Type}
+    })
+in
+    #"Changed Type"
+```
+
+
+#### 🧾 Column Descriptions
+
+| Column Name      | Data Type | Description                                                                 | Example      |
+|------------------|-----------|-----------------------------------------------------------------------------|--------------|
+| `Suspensia`      | Text      | Brand label (e.g., Suspensia, competitor brand, or product group)           | Suspensia    |
+| `Part Number`    | Text      | Catalog or SKU part number                                                  | 123456-A     |
+| `US_Sales_Qty`   | Integer   | Total quantity sold in the U.S. across all known channels and platforms     | 1823         |
+| `US_Sales_Rank`  | Integer   | Rank of the part based on U.S. total sales volume (1 = highest selling)     | 42           |
+
+---
+
+#### 📊 Usage and Analytical Value
+
+- **Market Intelligence:** Identify top-selling parts across the U.S. aftermarket.
+- **Competitive Benchmarking:** Compare Suspensia SKU performance to other players.
+- **SKU Prioritization:** Focus internal strategy on parts with proven external demand.
+- **Cross-Mapping:** Relate ranked parts to internal inventory, pricing, and forecasts.
+
+
+#### 🔗 Relationships (Typical Setup)
+
+  - `Item_Info` via `Part Number`
+  - Used in visualizations for ranking comparison vs. internal sales data
+
