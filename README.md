@@ -10,7 +10,7 @@
   - [Date Table](#date-table)
   - [Item Info Table](#item-info-table)
   - [Customers Table](#customers-table)
-  - [Vendors Table (Vendors)](#-vendors-table-vendors)
+  - [Vendors Table](#-vendors-table)
   - [Sales Table](#sales-table)
   - [SO Table (Sales Orders)](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
@@ -287,7 +287,7 @@ This table plays a vital role in enabling B2B-focused sales analysis, customer p
 
 ---
 
-### Vendors Table (`Vendors`)
+### Vendors Table
 
 #### Purpose
 The **Vendors Table** provides metadata about suppliers and partners from whom goods or services are procured. It plays a critical role in analyzing purchasing trends, tracking vendor performance, and segmenting procurement activity by type, segment, or region.
