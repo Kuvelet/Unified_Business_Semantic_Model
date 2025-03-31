@@ -286,6 +286,81 @@ This table plays a vital role in enabling B2B-focused sales analysis, customer p
 
 ---
 
+### Vendors Table (`Vendors`)
+
+#### Purpose
+The **Vendors Table** provides metadata about suppliers and partners from whom goods or services are procured. It plays a critical role in analyzing purchasing trends, tracking vendor performance, and segmenting procurement activity by type, segment, or region.
+
+Like the Customers and Reps tables, it includes anonymized identifiers to support privacy-compliant external reporting.
+
+---
+
+#### Source and Creation Method
+
+- **Source File:** `ISC_Vendors.xlsx`
+- **Loaded via:** Power Query
+- **Worksheet Used:** `All_Vendor_Info`
+- **Anonymization:** Uses `Vend_ID_Anonym` to allow for filtered, external-facing dashboards without revealing real vendor names.
+
+
+#### Power Query (M) Code
+
+```powerquery-m
+let
+    // Load the Excel workbook
+    Source = Excel.Workbook(File.Contents("V:\LIT\ISC\Sage\Vendor\ISC_Vendors.xlsx"), null, true),
+
+    // Access the relevant worksheet
+    All_Vendor_Info_Sheet = Source{[Item="All_Vendor_Info", Kind="Sheet"]}[Data],
+
+    // Assign all columns as text initially
+    #"Changed Type" = Table.TransformColumnTypes(All_Vendor_Info_Sheet, {
+        {"Column1", type text},
+        {"Column2", type text},
+        {"Column3", type text},
+        {"Column4", type text},
+        {"Column5", type text}
+    }),
+
+    // Promote the first row to be headers
+    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+
+    // Assign correct data types to each final column
+    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers", {
+        {"Vendor ID", type text},
+        {"Vendor Name", type text},
+        {"Customer Type", type text},
+        {"Vend_Segment", type text},
+        {"Vend_ID_Anonym", type text}
+    })
+in
+    #"Changed Type1"
+```
+
+
+#### Column Descriptions
+
+| Column Name       | Data Type | Description                                                       | Example         |
+|-------------------|-----------|-------------------------------------------------------------------|-----------------|
+| `Vendor ID`       | Text      | Unique identifier for the vendor                                  | VEND001         |
+| `Vendor Name`     | Text      | Name of the supplier or business partner                          | Global Supply Co|
+| `Customer Type`   | Text      | Internal classification or type of vendor                         | Manufacturer    |
+| `Vend_Segment`    | Text      | Segment grouping used for internal categorization                 | Tier 2          |
+| `Vend_ID_Anonym`  | Text      | Anonymized vendor ID used in dashboards or shared datasets        | V_ANON001       |
+
+
+#### Usage and Analytical Value
+
+- **Vendor Spend Analysis:** Aggregate purchases by vendor or segment.
+- **Supplier Segmentation:** View purchasing behavior by vendor group or type.
+- **Privacy Compliance:** Use anonymized IDs for external-facing analytics.
+- **Supply Chain Mapping:** Link vendors to parts or purchase orders.
+
+
+####  Relationships 
+
+- **Linked to the Purchases Table (`PJ_SUS`)** via `Vendor ID`
+- **Linked to the Purchase Orders Table (`POJ_SUS`)** via `Vendor ID`
 
 ---
 
