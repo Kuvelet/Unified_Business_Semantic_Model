@@ -719,3 +719,101 @@ in
 
 This table allows the business to report on financial results by ledger classification, enabling cleaner income statements, cost of goods sold analysis, and profitability segmentation.
 
+---
+
+
+### Sales Representatives Table (`Reps`)
+
+#### Purpose
+The **Sales Representatives Table** tracks the individuals responsible for handling customer accounts and executing sales transactions. It plays a critical role in rep-level performance monitoring, accountability, and segmenting sales by division, territory, or internal structure.
+
+This table supports both internal and external reporting use cases through a combination of real and anonymized identifiers.
+
+---
+
+#### Source and Creation Method
+
+- **Dynamic Base Table:** Created via **DAX** using distinct rep IDs found in the Sales and SO tables.
+- **Metadata Mapping:** Enriched with external metadata (e.g., anonymized ID and division) using Power Query from `ISC_Reps.xlsx`.
+
+
+#### DAX Table Definition
+
+The table is dynamically generated to include any rep ID present in the system, even if metadata hasn’t been defined yet:
+
+```DAX
+Sales_Reps = 
+DISTINCT(
+    UNION(
+        SELECTCOLUMNS(Sales_SUS, "Rep_ID", Sales_SUS[Sales Representative ID]),
+        SELECTCOLUMNS(SO_SUS, "X", SO_SUS[Sales Representative ID])
+    )
+)
+```
+
+This ensures:
+- Newly added sales reps automatically appear in reports.
+- Data integrity is maintained even if metadata is missing.
+- Reduces maintenance compared to static tables.
+
+---
+
+#### Power Query Enrichment
+
+Once the DAX table exists, rep metadata is added using Power Query from the Excel file `ISC_Reps.xlsx`.
+
+```powerquery-m
+let
+    // Step 1: Load the Excel workbook
+    Source = Excel.Workbook(File.Contents("V:\LIT\ISC\Sage\Customer\ISC_Reps.xlsx"), null, true),
+
+    // Step 2: Access the worksheet (Sheet1)
+    Sheet1_Sheet = Source{[Item="Sheet1", Kind="Sheet"]}[Data],
+
+    // Step 3: Temporarily cast columns to text
+    #"Changed Type" = Table.TransformColumnTypes(Sheet1_Sheet, {
+        {"Column1", type text},
+        {"Column2", type text},
+        {"Column3", type text}
+    }),
+
+    // Step 4: Promote the first row to headers
+    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+
+    // Step 5: Assign correct data types
+    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers", {
+        {"Rep_ID", type text},
+        {"Rep_ID_Anonym", type text},
+        {"Division", type text}
+    })
+in
+    #"Changed Type1"
+```
+
+---
+
+#### 🧾 Column Descriptions
+
+| Column Name      | Data Type | Description                                                       | Example     |
+|------------------|-----------|-------------------------------------------------------------------|-------------|
+| `Rep_ID`         | Text      | Unique internal identifier of the sales representative            | REP014      |
+| `Rep_ID_Anonym`  | Text      | Anonymized ID used in public dashboards                           | R_ANON001   |
+| `Division`       | Text      | Department or region the rep is assigned to                       | US Midwest  |
+
+---
+
+#### Usage and Analytical Value
+
+- **Performance Dashboards:** Track revenue, profit, or sales quantity by rep.
+- **Organizational Reporting:** View KPIs by rep division.
+- **Data Governance:** Anonymized data ensures compliance and sharing flexibility.
+- **Dynamic Updates:** No manual updates required when new reps are added to source systems.
+
+
+#### Relationships Overview
+
+- **Connected to Sales Table** via `Sales Representative ID`
+- **May be joined to Customer Table** for segmenting customers by rep
+- **Used in filters, slicers, and role-based visuals**
+
+---
