@@ -10,6 +10,7 @@
   - [Date Table](#date-table)
   - [Item Info Table](#item-info-table)
   - [Customers Table](#customers-table)
+  - [Vendors Table (Vendors)](#-vendors-table-vendors)
   - [Sales Table](#sales-table)
   - [SO Table (Sales Orders)](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
