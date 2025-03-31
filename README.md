@@ -981,7 +981,7 @@ This table is especially useful for identifying high-volume SKUs, market demand,
 - **Usage:** Joined or related to internal part references to enable direct comparison with in-house SKU performance
 
 
-#### Example Power Query (M) Stub (for illustration)
+#### Power Query (M)
 
 ```powerquery-m
 let
@@ -1003,7 +1003,7 @@ in
 ```
 
 
-#### 🧾 Column Descriptions
+#### Column Descriptions
 
 | Column Name      | Data Type | Description                                                                 | Example      |
 |------------------|-----------|-----------------------------------------------------------------------------|--------------|
@@ -1014,7 +1014,7 @@ in
 
 ---
 
-#### 📊 Usage and Analytical Value
+#### Usage and Analytical Value
 
 - **Market Intelligence:** Identify top-selling parts across the U.S. aftermarket.
 - **Competitive Benchmarking:** Compare Suspensia SKU performance to other players.
@@ -1022,7 +1022,7 @@ in
 - **Cross-Mapping:** Relate ranked parts to internal inventory, pricing, and forecasts.
 
 
-#### 🔗 Relationships (Typical Setup)
+#### Relationships
 
   - `Item_Info` via `Part Number`
   - Used in visualizations for ranking comparison vs. internal sales data
