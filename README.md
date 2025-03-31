@@ -16,6 +16,7 @@
   - [PO Table (Purchase Order)](#po-table-purchase-orders)
   - [Chart of Accounts Table](#chart-of-accounts-table)
   - [Sales Representatives Table (Reps)](#sales-representatives-table-reps)
+  - 
 
 ...
 
@@ -876,8 +877,8 @@ DISTINCT (
 #### Relationships
 
 - Linked to:
-  - `Sales_SUS` via `Invoice/CM #` or `Job ID`
-  - `SO_SUS` via `Invoice/CM #` or `Job ID`
-  - `PJ_SUS` via `Invoice/CM #` or `Job ID`
-  - `POJ_SUS` via `PO #` or `Job ID`
+  - `Sales_SUS` via `Invoice/CM #` and `Job ID`
+  - `SO_SUS` via `Invoice/CM #` and `Job ID`
+  - `PJ_SUS` via `Invoice/CM #` and `Job ID`
+  - `POJ_SUS` via `PO #` and `Job ID`
 
