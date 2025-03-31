@@ -10,7 +10,7 @@
   - [Date Table](#date-table)
   - [Item Info Table](#item-info-table)
   - [Customers Table](#customers-table)
-  - [Vendors Table](#-vendors-table)
+  - [Vendors Table](#vendors-table)
   - [Sales Table](#sales-table)
   - [SO Table (Sales Orders)](#so-table-sales-orders)
   - [Purchases Table](#purchases-table)
@@ -281,7 +281,7 @@ in
 
 #### Relationships (Brief Overview)
 - **Linked to the Sales Table** via `Customer ID`
--  **Linked to the SO Table** via `Customer ID`
+- **Linked to the SO Table** via `Customer ID`
 
 This table plays a vital role in enabling B2B-focused sales analysis, customer profiling, and performance reporting.
 
@@ -293,8 +293,6 @@ This table plays a vital role in enabling B2B-focused sales analysis, customer p
 The **Vendors Table** provides metadata about suppliers and partners from whom goods or services are procured. It plays a critical role in analyzing purchasing trends, tracking vendor performance, and segmenting procurement activity by type, segment, or region.
 
 Like the Customers and Reps tables, it includes anonymized identifiers to support privacy-compliant external reporting.
-
----
 
 #### Source and Creation Method
 
