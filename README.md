@@ -730,7 +730,6 @@ The **Sales Representatives Table** tracks the individuals responsible for handl
 
 This table supports both internal and external reporting use cases through a combination of real and anonymized identifiers.
 
----
 
 #### Source and Creation Method
 
@@ -791,9 +790,8 @@ in
     #"Changed Type1"
 ```
 
----
 
-#### 🧾 Column Descriptions
+#### Column Descriptions
 
 | Column Name      | Data Type | Description                                                       | Example     |
 |------------------|-----------|-------------------------------------------------------------------|-------------|
@@ -801,7 +799,6 @@ in
 | `Rep_ID_Anonym`  | Text      | Anonymized ID used in public dashboards                           | R_ANON001   |
 | `Division`       | Text      | Department or region the rep is assigned to                       | US Midwest  |
 
----
 
 #### Usage and Analytical Value
 
