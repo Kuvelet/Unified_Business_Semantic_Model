@@ -18,7 +18,7 @@
   - [Chart of Accounts Table](#chart-of-accounts-table)
   - [Sales Representatives Table (Reps)](#sales-representatives-table-reps)
   - [Invoices & Job IDs](#invoices--job-ids)
-  - 
+  - [USA Sales Ranking Table](#usa-sales-ranking-table)
 
 
 ...
@@ -964,14 +964,14 @@ DISTINCT (
 ---
 
 
-### Sales Ranking Table
+### USA Sales Ranking Table
 
 #### Purpose
 The **SUSP_Sales_Rank** table provides a unified sales ranking of automotive parts across the U.S. market. It includes sales data not only from Suspensia but also from major competitors and platforms, making it a comprehensive reference point for comparing product performance in the national landscape.
 
 This table is especially useful for identifying high-volume SKUs, market demand, and strategic positioning.
 
-> ℹ This table is sourced from SQL Server and will be expanded and documented in a separate project focused on competitive market intelligence and cross-platform sales insights.
+> This table is sourced from SQL Server and will be expanded and documented in a separate project focused on competitive market intelligence and cross-platform sales insights.
 
 #### Source and Creation Method
 
@@ -1013,7 +1013,6 @@ in
 | `US_Sales_Qty`   | Integer   | Total quantity sold in the U.S. across all known channels and platforms     | 1823         |
 | `US_Sales_Rank`  | Integer   | Rank of the part based on U.S. total sales volume (1 = highest selling)     | 42           |
 
----
 
 #### Usage and Analytical Value
 
