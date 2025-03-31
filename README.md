@@ -286,6 +286,9 @@ This table plays a vital role in enabling B2B-focused sales analysis, customer p
 
 ---
 
+
+---
+
 ### Sales Table
 
 #### Purpose
