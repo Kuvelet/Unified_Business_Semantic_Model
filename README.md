@@ -19,6 +19,7 @@
   - [Sales Representatives Table (Reps)](#sales-representatives-table-reps)
   - [Invoices & Job IDs](#invoices--job-ids)
   - [USA Sales Ranking Table](#usa-sales-ranking-table)
+- [Model Relationships](#model-relationships)
 
 
 ...
