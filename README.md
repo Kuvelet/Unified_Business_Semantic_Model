@@ -1021,9 +1021,185 @@ in
 - **SKU Prioritization:** Focus internal strategy on parts with proven external demand.
 - **Cross-Mapping:** Relate ranked parts to internal inventory, pricing, and forecasts.
 
+---
+
+#### Relationships Between Tables
+
+This section provides a comprehensive explanation of how all core tables in the semantic model are connected. These relationships enable a powerful and unified analytics framework for reporting across sales, procurement, inventory, finance, and catalog dimensions.
+
+Each relationship is intentionally designed to reflect real-world business logic, enabling traceability, auditability, and scalable filtering across different layers of the model.
+
+---
+
+### 1. Date Table Relationships
+
+The `Date` table is a foundational dimension table that enables time intelligence throughout the model. It is connected to every major transactional table via their respective date fields.
 
 #### Relationships
+- `Sales_SUS[Date]` → `Date[Date]`
+- `SO_SUS[Date]` → `Date[Date]`
+- `PJ_SUS[Date]` → `Date[Date]`
+- `POJ_SUS[Date]` → `Date[Date]`
 
-  - `Item_Info` via `Part Number`
-  - Used in visualizations for ranking comparison vs. internal sales data
+#### Purpose & Value
+This relationship allows for consistent filtering across dashboards by year, month, week, or fiscal period. It also powers DAX time intelligence functions such as YTD, QoQ, and moving averages, ensuring uniform date context across all measures.
+
+---
+
+### 2. Item Info Table Relationships
+
+`Item_Info` acts as the product master and is linked to all transactional tables through standardized item identifiers. This ensures consistency in how parts are referenced, analyzed, and visualized.
+
+#### Relationships
+- `Sales_SUS[Sold As (Item ID)]` → `Item_Info[Sold As (Item ID)]`
+- `SO_SUS[Sold As (Item ID)]` → `Item_Info[Sold As (Item ID)]`
+- `PJ_SUS[Purchased As (Item ID)]` → `Item_Info[Sold As (Item ID)]`
+- `POJ_SUS[Item ID]` → `Item_Info[Sold As (Item ID)]`
+- `SUSP_Sales_Rank[Part Number]` → `Item_Info[Sold As (Item ID)]`
+
+#### Purpose & Value
+Provides a consistent structure for part-level filtering, catalog enrichment, and the application of cross-reference or supersession logic. This is crucial for inventory analysis, forecasting, and comparing internal performance to market benchmarks.
+
+---
+
+### 3. Customers Table Relationships
+
+The `Customers` table is the primary customer dimension, used for filtering and segmenting sales and sales orders by client attributes.
+
+#### Relationships
+- `Sales_SUS[Customer ID]` → `Customers[Customer ID]`
+- `SO_SUS[Customer ID]` → `Customers[Customer ID]`
+
+#### Purpose & Value
+Allows analysts to explore data by customer tier, customer type, region, or account. It's also essential for sales performance analysis and customer-specific dashboards.
+
+---
+
+### 4. Vendors Table Relationships
+
+The `Vendors` table acts as the procurement counterpart to the Customers table. It is used to categorize, segment, and analyze vendors across purchase activities.
+
+#### Relationships
+- `PJ_SUS[Vendor ID]` → `Vendors[Vendor ID]`
+- `POJ_SUS[Vendor ID]` → `Vendors[Vendor ID]`
+
+#### Purpose & Value
+Enables vendor-level spend analysis, procurement efficiency KPIs, and categorization by type or segment. It's vital for identifying supplier dependencies and negotiating leverage.
+
+---
+
+### 5. Sales Table Relationships
+
+The `Sales_SUS` table serves as a central fact table and connects to nearly all supporting dimensions.
+
+#### Relationships
+- `Date` via `Sales_SUS[Date]`
+- `Item_Info` via `Sold As (Item ID)`
+- `Customers` via `Customer ID`
+- `Reps` via `Sales Representative ID`
+- `COA_CONS` via `G/L Account`
+- `Invoices_JobIDs_Bridge` via both `Invoice/CM #` and `Job ID`
+
+#### Purpose & Value
+These relationships form a full star schema for revenue reporting, enabling drilldown by customer, rep, time, and product while ensuring integration with accounting (G/L).
+
+---
+
+### 6. SO Table (Sales Orders) Relationships
+
+The `SO_SUS` table reflects pipeline sales or quote activity and is structurally similar to `Sales_SUS`.
+
+#### Relationships
+- `Date` via `SO_SUS[Date]`
+- `Item_Info` via `Sold As (Item ID)`
+- `Customers` via `Customer ID`
+- `Reps` via `Sales Representative ID`
+- `Invoices_JobIDs_Bridge` via `Invoice/CM #` and `Job ID`
+
+#### Purpose & Value
+Supports analysis of pending or fulfilled sales, quote conversion rates, and future demand planning.
+
+---
+
+### 7. Purchases Table Relationships
+
+`PJ_SUS` captures purchase transactions and ties into item, vendor, and finance hierarchies.
+
+#### Relationships
+- `Date` via `PJ_SUS[Date]`
+- `Item_Info` via `Purchased As (Item ID)`
+- `Vendors` via `Vendor ID`
+- `COA_CONS` via `G/L Account`
+- `Invoices_JobIDs_Bridge` via `Invoice/CM #` and `Job ID`
+
+#### Purpose & Value
+Essential for spend tracking, vendor scorecards, and accounting reconciliation.
+
+---
+
+### 8. PO Table (Purchase Orders) Relationships
+
+`POJ_SUS` reflects purchase planning and works as a predictive source for procurement tracking.
+
+#### Relationships
+- `Date` via `POJ_SUS[Date]`
+- `Item_Info` via `Item ID`
+- `Vendors` via `Vendor ID`
+- `Invoices_JobIDs_Bridge` via `PO #` and `Job ID`
+
+#### Purpose & Value
+Enables PO tracking, planning accuracy assessment, and inventory arrival forecasting.
+
+---
+
+### 9. Chart of Accounts Table Relationships
+
+The `COA_CONS` table classifies financial transactions using G/L logic.
+
+#### Relationships
+- `Sales_SUS[G/L Account]` → `COA_CONS[Account ID]`
+- `PJ_SUS[G/L Account]` → `COA_CONS[Account ID]`
+
+#### Purpose & Value
+Crucial for mapping line items to revenue/cost centers for accounting-grade reporting.
+
+---
+
+### 10. Sales Representatives Table (Reps) Relationships
+
+The `Reps` table adds rep-level detail to sales and order tracking.
+
+#### Relationships
+- `Sales_SUS[Sales Representative ID]` → `Reps[Rep_ID]`
+- `SO_SUS[Sales Representative ID]` → `Reps[Rep_ID]`
+
+#### Purpose & Value
+Enables rep-based dashboards, performance benchmarking, and territory coverage insights.
+
+---
+
+### 11. Invoices & Job IDs Bridge Table Relationships
+
+This bridge table facilitates cross-joining all transactional tables by shared invoice and job identifiers.
+
+#### Relationships
+- `Sales_SUS[Invoice/CM #, Job ID]` → `Invoices_JobIDs_Bridge`
+- `SO_SUS[Invoice/CM #, Job ID]` → `Invoices_JobIDs_Bridge`
+- `PJ_SUS[Invoice/CM #, Job ID]` → `Invoices_JobIDs_Bridge`
+- `POJ_SUS[PO #, Job ID]` → `Invoices_JobIDs_Bridge`
+
+#### Purpose & Value
+Enables unified analysis of transactions tied to a shared invoice or job across modules. Extremely valuable for auditing and cost tracing.
+
+---
+
+### 🇺🇸 12. USA Sales Ranking Table Relationships
+
+The external `SUSP_Sales_Rank` table relates to product master data for comparative benchmarking.
+
+#### Relationships
+- `SUSP_Sales_Rank[Part Number]` → `Item_Info[Sold As (Item ID)]`
+
+#### Purpose & Value
+Enables internal vs. market performance comparisons. This link allows the organization to identify underperforming or overperforming SKUs relative to nationwide data.
 
