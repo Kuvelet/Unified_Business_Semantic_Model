@@ -1030,7 +1030,7 @@ This section provides a comprehensive explanation of how all core tables in the 
 
 Each relationship is intentionally designed to reflect real-world business logic, enabling traceability, auditability, and scalable filtering across different layers of the model.
 
-![semantic_diagram](https://github.com/user-attachments/assets/eef88a61-3b3a-41f7-8c35-b39667b17150)
+
 
 
 ---
