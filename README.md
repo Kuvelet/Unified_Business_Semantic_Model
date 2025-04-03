@@ -1023,11 +1023,14 @@ in
 
 ---
 
-#### Relationships Between Tables
+## Model Relationships
 
 This section provides a comprehensive explanation of how all core tables in the semantic model are connected. These relationships enable a powerful and unified analytics framework for reporting across sales, procurement, inventory, finance, and catalog dimensions.
 
 Each relationship is intentionally designed to reflect real-world business logic, enabling traceability, auditability, and scalable filtering across different layers of the model.
+
+![semantic_diagram](https://github.com/user-attachments/assets/eef88a61-3b3a-41f7-8c35-b39667b17150)
+
 
 ---
 
@@ -1193,7 +1196,7 @@ Enables unified analysis of transactions tied to a shared invoice or job across 
 
 ---
 
-### 🇺🇸 12. USA Sales Ranking Table Relationships
+### 12. USA Sales Ranking Table Relationships
 
 The external `SUSP_Sales_Rank` table relates to product master data for comparative benchmarking.
 
