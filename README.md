@@ -1030,7 +1030,7 @@ This section provides a comprehensive explanation of how all core tables in the 
 
 Each relationship is intentionally designed to reflect real-world business logic, enabling traceability, auditability, and scalable filtering across different layers of the model.
 
-![Semantic Model ERD](images/semantic_diagram.JPG)
+![Semantic Model ERD](semantic_diagram.JPG)
 
 ---
 
