@@ -35,10 +35,15 @@
   - [Customer Churn Rate](#customer-churn-rate)
   - [Dynamic Pareto Segmentation (ABC)](#dynamic-pareto-segmentation-abc)
   - [Sales Representative Dynamic Ranking](#sales-representative-dynamic-ranking)
-- [Calculated Columns](#dax-measures)
-  - [Customer Lifetime Value (CLV)]
-  - [Days Since Last Sale]
-  - [Vendor Reliability Score]
+- [Calculated Columns](#calculated-columns)
+  - [Customer Segmentation by Lifetime Value (Customers Table)](#customer-segmentation-by-lifetime-value-customers-table)
+  - [SKU Sales Velocity (Item_Info Table)](#sku-sales-velocity-item_info-table)
+  - [PO Delivery Delay Flag (POJ_SUS Table)](#po-delivery-delay-flag-poj_sus-table)
+  - [Customer Recency Category (Customers Table)](#customer-recency-category-customers-table)
+  - [Dynamic Product Margin Category (Item_Info Table)](#dynamic-product-margin-category-item_info-table)
+  - [Dynamic Vendor Quality Rating (Vendors Table)](#dynamic-vendor-quality-rating-vendors-table)
+
+
 ...
 
 ## The Need for a Comprehensive Data Model
@@ -1464,83 +1469,138 @@ IF(
 
 ---
 
-## Complex Calculated Columns
+## Calculated Columns
 
-### 1. Customer Lifetime Value (CLV)
-Estimates total lifetime spend per customer.
+### 1. Customer Segmentation by Lifetime Value (Customers Table)
+
+This calculated column classifies each customer into segments based on their total lifetime purchase amount. By categorizing customers into segments such as Platinum, Gold, Silver, Bronze, or Inactive, it supports targeted marketing and strategic customer relationship management.
 
 ```DAX
-CLV =
-CALCULATE(
+Customer Segment =
+VAR CLV = CALCULATE(
     SUM(Sales_SUS[Sales_Amount]),
-    ALLEXCEPT(Customers, Customers[Customer ID])
+    Sales_SUS[Customer ID] = Customers[Customer ID]
+)
+RETURN
+SWITCH(
+    TRUE(),
+    CLV > 100000, "Platinum",
+    CLV > 50000, "Gold",
+    CLV > 10000, "Silver",
+    CLV > 0, "Bronze",
+    "Inactive"
 )
 ```
 
----
+### 2. SKU Sales Velocity (Item_Info Table)
 
-### 2. Days Since Last Sale
-Calculates days since a customer's last purchase.
+This column categorizes items based on their recent sales performance (last 90 days). The classifications help inventory managers quickly identify fast-moving items, items that are moderate sellers, slow movers, and those that haven't sold recently, supporting better inventory and promotional strategies.
 
 ```DAX
-Days Since Last Sale =
-DATEDIFF(
-    CALCULATE(
-        MAX(Sales_SUS[Date]),
-        Sales_SUS[Customer ID] = Customers[Customer ID]
-    ),
-    TODAY(),
-    DAY
+SKU Sales Velocity =
+VAR Last90DaysSales = CALCULATE(
+    SUM(Sales_SUS[Sales_Quantity]),
+    DATESINPERIOD('Date'[Date], TODAY(), -90, DAY),
+    Sales_SUS[Sold As (Item ID)] = Item_Info[Sold As (Item ID)]
+)
+RETURN
+SWITCH(
+    TRUE(),
+    Last90DaysSales >= 500, "Fast Moving",
+    Last90DaysSales >= 100, "Moderate",
+    Last90DaysSales >= 1, "Slow Moving",
+    "No Recent Sales"
 )
 ```
 
----
+### 3. PO Delivery Delay Flag (POJ_SUS Table)
 
-### 3. Vendor Reliability Score
-Calculates vendor reliability based on late deliveries.
+Identifies purchase orders that were delivered late by comparing actual delivery dates against expected delivery dates. Useful for procurement teams to quickly flag problematic orders and suppliers, helping maintain a reliable supply chain.
 
 ```DAX
-Reliability Score =
-VAR TotalOrders =
-    CALCULATE(
-        COUNTROWS(POJ_SUS),
-        POJ_SUS[Vendor ID] = Vendors[Vendor ID]
-    )
-VAR LateOrders =
-    CALCULATE(
-        COUNTROWS(POJ_SUS),
-        POJ_SUS[Vendor ID] = Vendors[Vendor ID],
-        POJ_SUS[Delivery Date] > POJ_SUS[Expected Delivery Date]
+Delivery Delay Flag =
+IF(
+    POJ_SUS[Delivery Date] > POJ_SUS[Expected Delivery Date],
+    "Delayed",
+    "On-Time"
+)
+```
+
+### 4. Customer Recency Category (Customers Table)
+
+Categorizes customers based on how recently they have made a purchase. This categorization is crucial for customer retention and re-engagement strategies, enabling timely outreach and improving customer loyalty programs.
+
+```DAX
+Customer Recency Category =
+VAR DaysSinceLastPurchase = 
+    DATEDIFF(
+        CALCULATE(MAX(Sales_SUS[Date]), Sales_SUS[Customer ID] = Customers[Customer ID]),
+        TODAY(),
+        DAY
     )
 RETURN
-    1 - DIVIDE(LateOrders, TotalOrders)
+SWITCH(
+    TRUE(),
+    DaysSinceLastPurchase <= 30, "Active",
+    DaysSinceLastPurchase <= 90, "Recent",
+    DaysSinceLastPurchase <= 365, "Dormant",
+    "Lost"
+)
 ```
 
----
+### 5. Dynamic Product Margin Category (Item_Info Table)
 
-### 4. Inventory Status
-Identifies if SKU inventory is Overstock, Healthy, or At Risk.
+Classifies products based on dynamically calculated margins derived from average sales prices and average purchase costs. By categorizing products into margin tiers (high, medium, low, negative), product managers can quickly assess and adjust pricing strategies, promotions, and product portfolio decisions.
 
 ```DAX
-Inventory Status =
-VAR AvgSales =
+Product Margin Category =
+VAR SalesPrice = 
     CALCULATE(
-        AVERAGE(Sales_SUS[Sales_Quantity]),
-        DATESINPERIOD('Date'[Date], TODAY(), -3, MONTH),
+        AVERAGE(Sales_SUS[Unit Price]),
         Sales_SUS[Sold As (Item ID)] = Item_Info[Sold As (Item ID)]
     )
-VAR Coverage =
-    DIVIDE(Item_Info[Current Inventory], AvgSales, 0)
-RETURN
-    SWITCH(
-        TRUE(),
-        Coverage >= 6, "Overstock",
-        Coverage >= 2, "Healthy",
-        Coverage < 2, "At Risk",
-        "Unknown"
+VAR CostPrice = 
+    CALCULATE(
+        AVERAGE(PJ_SUS[Purchase_Unit Price]),
+        PJ_SUS[Purchased As (Item ID)] = Item_Info[Sold As (Item ID)]
     )
+VAR Margin = DIVIDE(SalesPrice - CostPrice, SalesPrice)
+RETURN
+SWITCH(
+    TRUE(),
+    Margin >= 0.5, "High Margin",
+    Margin >= 0.2, "Medium Margin",
+    Margin >= 0, "Low Margin",
+    "Negative Margin"
+)
 ```
 
+### 6. Dynamic Vendor Quality Rating (Vendors Table)
+
+Provides a nuanced evaluation of vendors by combining two critical factors: the proportion of delayed deliveries and the frequency of returned items. It generates a weighted reliability score, allowing procurement teams to systematically identify and address vendor performance issues.
+
+```DAX
+Vendor Quality Rating =
+VAR DelayRatio = 
+    DIVIDE(
+        CALCULATE(COUNTROWS(POJ_SUS), POJ_SUS[Vendor ID] = Vendors[Vendor ID], POJ_SUS[Delivery Date] > POJ_SUS[Expected Delivery Date]),
+        CALCULATE(COUNTROWS(POJ_SUS), POJ_SUS[Vendor ID] = Vendors[Vendor ID])
+    )
+VAR ReturnsRatio =
+    DIVIDE(
+        CALCULATE(COUNTROWS(PJ_SUS), PJ_SUS[Vendor ID] = Vendors[Vendor ID], PJ_SUS[Credit Memo] = TRUE()),
+        CALCULATE(COUNTROWS(PJ_SUS), PJ_SUS[Vendor ID] = Vendors[Vendor ID])
+    )
+VAR Score = (DelayRatio * 0.6) + (ReturnsRatio * 0.4)
+RETURN
+SWITCH(
+    TRUE(),
+    Score <= 0.1, "Excellent",
+    Score <= 0.2, "Good",
+    Score <= 0.3, "Average",
+    "Poor"
+)
+```
 
 
 
