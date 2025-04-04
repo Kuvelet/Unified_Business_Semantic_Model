@@ -42,9 +42,9 @@
   - [Customer Recency Category (Customers Table)](#customer-recency-category-customers-table)
   - [Dynamic Product Margin Category (Item_Info Table)](#dynamic-product-margin-category-item_info-table)
   - [Dynamic Vendor Quality Rating (Vendors Table)](#dynamic-vendor-quality-rating-vendors-table)
+- [Dashboards & Visuals](#dashboards--visuals)
 
-
-...
+---
 
 ## The Need for a Comprehensive Data Model
 
