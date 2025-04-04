@@ -1475,7 +1475,7 @@ IF(
 
 ## Calculated Columns
 
-### 1. Customer Segmentation by Lifetime Value (Customers Table)
+### Customer Segmentation by Lifetime Value (Customers Table)
 
 This calculated column classifies each customer into segments based on their total lifetime purchase amount. By categorizing customers into segments such as Platinum, Gold, Silver, Bronze, or Inactive, it supports targeted marketing and strategic customer relationship management.
 
@@ -1496,7 +1496,7 @@ SWITCH(
 )
 ```
 
-### 2. SKU Sales Velocity (Item_Info Table)
+### SKU Sales Velocity (Item_Info Table)
 
 This column categorizes items based on their recent sales performance (last 90 days). The classifications help inventory managers quickly identify fast-moving items, items that are moderate sellers, slow movers, and those that haven't sold recently, supporting better inventory and promotional strategies.
 
@@ -1517,7 +1517,7 @@ SWITCH(
 )
 ```
 
-### 3. PO Delivery Delay Flag (POJ_SUS Table)
+### PO Delivery Delay Flag (POJ_SUS Table)
 
 Identifies purchase orders that were delivered late by comparing actual delivery dates against expected delivery dates. Useful for procurement teams to quickly flag problematic orders and suppliers, helping maintain a reliable supply chain.
 
@@ -1530,7 +1530,7 @@ IF(
 )
 ```
 
-### 4. Customer Recency Category (Customers Table)
+### Customer Recency Category (Customers Table)
 
 Categorizes customers based on how recently they have made a purchase. This categorization is crucial for customer retention and re-engagement strategies, enabling timely outreach and improving customer loyalty programs.
 
@@ -1552,7 +1552,7 @@ SWITCH(
 )
 ```
 
-### 5. Dynamic Product Margin Category (Item_Info Table)
+### Dynamic Product Margin Category (Item_Info Table)
 
 Classifies products based on dynamically calculated margins derived from average sales prices and average purchase costs. By categorizing products into margin tiers (high, medium, low, negative), product managers can quickly assess and adjust pricing strategies, promotions, and product portfolio decisions.
 
@@ -1579,7 +1579,7 @@ SWITCH(
 )
 ```
 
-### 6. Dynamic Vendor Quality Rating (Vendors Table)
+### Dynamic Vendor Quality Rating (Vendors Table)
 
 Provides a nuanced evaluation of vendors by combining two critical factors: the proportion of delayed deliveries and the frequency of returned items. It generates a weighted reliability score, allowing procurement teams to systematically identify and address vendor performance issues.
 
