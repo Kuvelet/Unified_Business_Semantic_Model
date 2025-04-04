@@ -1396,7 +1396,6 @@ CALCULATE(
     )
 )
 ```
-
 ---
 
 ### Customer Churn Rate
