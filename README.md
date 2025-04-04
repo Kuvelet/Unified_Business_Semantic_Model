@@ -1319,7 +1319,7 @@ CALCULATE(
 )
 ```
 
-### 8. Stock Coverage in Days (Simplified)
+### 8. Stock Coverage in Days
 Estimates how many days current inventory will last based on average daily sales of the past month.
 
 ```DAX
@@ -1333,7 +1333,7 @@ DIVIDE(
 )
 ```
 
-### 9. Sales Rank by Part Number (Internal)
+### 9. Sales Rank by Part Number
 Ranks each product based on total sales amounts within the catalog.
 
 ```DAX
