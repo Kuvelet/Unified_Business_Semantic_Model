@@ -21,10 +21,20 @@
   - [USA Sales Ranking Table](#usa-sales-ranking-table)
 - [Model Relationships](#model-relationships)
 - [DAX Measures](#dax-measures)
-  - [Customer Cohort Analysis (Monthly)](#date-table)
-  - [Customer Churn Rate]
-  - [Dynamic Pareto Segmentation (ABC)]
-  - [Sales Representative Dynamic Ranking]
+  - [Sales Amount Last 12 Months (Rolling)](#sales-amount-last-12-months-rolling)
+  - [Top N Customers by Sales](#top-n-customers-by-sales)
+  - [Purchase to Sales Ratio](#purchase-to-sales-ratio)
+  - [Sales per Representative](#sales-per-representative)
+  - [Year-over-Year (YoY) Sales Growth](#year-over-year-yoy-sales-growth)
+  - [Average Days Between Order and Invoice](#average-days-between-order-and-invoice)
+  - [SKUs with No Sales (Active Items Only)](#skus-with-no-sales-active-items-only)
+  - [Stock Coverage in Days](#stock-coverage-in-days)
+  - [Sales Rank by Part Number](#sales-rank-by-part-number)
+  - [Repeat Customers Percentage](#repeat-customers-percentage)
+  - [Customer Cohort Analysis (Monthly)](#customer-cohort-analysis-monthly)
+  - [Customer Churn Rate](#customer-churn-rate)
+  - [Dynamic Pareto Segmentation (ABC)](#dynamic-pareto-segmentation-abc)
+  - [Sales Representative Dynamic Ranking](#sales-representative-dynamic-ranking)
 - [Calculated Columns](#dax-measures)
   - [Customer Lifetime Value (CLV)]
   - [Days Since Last Sale]
