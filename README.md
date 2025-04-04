@@ -20,8 +20,15 @@
   - [Invoices & Job IDs](#invoices--job-ids)
   - [USA Sales Ranking Table](#usa-sales-ranking-table)
 - [Model Relationships](#model-relationships)
-
-
+- [DAX Measures](#dax-measures)
+  - [Customer Cohort Analysis (Monthly)](#date-table)
+  - [Customer Churn Rate]
+  - [Dynamic Pareto Segmentation (ABC)]
+  - [Sales Representative Dynamic Ranking]
+- [Calculated Columns](#dax-measures)
+  - [Customer Lifetime Value (CLV)]
+  - [Days Since Last Sale]
+  - [Vendor Reliability Score]
 ...
 
 ## The Need for a Comprehensive Data Model
@@ -1205,4 +1212,178 @@ The external `SUSP_Sales_Rank` table relates to product master data for comparat
 
 #### Purpose & Value
 Enables internal vs. market performance comparisons. This link allows the organization to identify underperforming or overperforming SKUs relative to nationwide data.
+
+
+## DAX Measures
+
+### 1. Customer Cohort Analysis (Monthly)
+Shows total sales from customers grouped by their first purchase month.
+
+```DAX
+Customer Cohort Sales =
+CALCULATE(
+    [Total Sales Amount],
+    FILTER(
+        Customers,
+        FORMAT(MINX(
+            FILTER(Sales_SUS, Sales_SUS[Customer ID] = Customers[Customer ID]),
+            Sales_SUS[Date]
+        ), "YYYY-MM") = SELECTEDVALUE('Date'[YearMonth])
+    )
+)
+```
+
+---
+
+### 2. Customer Churn Rate
+Identifies customers who bought in previous periods but not in the current period.
+
+```DAX
+Customer Churn % =
+VAR PrevCustomers =
+    CALCULATETABLE(
+        VALUES(Sales_SUS[Customer ID]),
+        PREVIOUSMONTH('Date'[Date])
+    )
+VAR CurrentCustomers =
+    VALUES(Sales_SUS[Customer ID])
+VAR Churned =
+    COUNTROWS(
+        EXCEPT(PrevCustomers, CurrentCustomers)
+    )
+VAR TotalPrev =
+    COUNTROWS(PrevCustomers)
+RETURN
+    DIVIDE(Churned, TotalPrev)
+```
+
+---
+
+### 3. Dynamic Pareto Segmentation (ABC)
+Classifies SKUs into A, B, C categories based on cumulative sales.
+
+```DAX
+SKU Pareto Segment =
+VAR CumPerc =
+    CALCULATE(
+        DIVIDE(
+            [Total Sales Amount],
+            CALCULATE([Total Sales Amount], ALL(Item_Info))
+        ),
+        FILTER(
+            ALLSELECTED(Item_Info),
+            [Total Sales Amount] >= EARLIER([Total Sales Amount])
+        )
+    )
+RETURN
+    SWITCH(
+        TRUE(),
+        CumPerc <= 0.8, "A",
+        CumPerc <= 0.95, "B",
+        "C"
+    )
+```
+
+---
+
+### 4. Sales Representative Dynamic Ranking
+Ranks sales representatives based on total sales.
+
+```DAX
+Sales Rep Dynamic Rank =
+IF(
+    ISINSCOPE(Reps[Rep_ID]),
+    RANKX(
+        ALLSELECTED(Reps[Rep_ID]),
+        [Total Sales Amount],
+        ,
+        DESC,
+        DENSE
+    )
+)
+```
+
+---
+
+## Complex Calculated Columns
+
+### 1. Customer Lifetime Value (CLV)
+Estimates total lifetime spend per customer.
+
+```DAX
+CLV =
+CALCULATE(
+    SUM(Sales_SUS[Sales_Amount]),
+    ALLEXCEPT(Customers, Customers[Customer ID])
+)
+```
+
+---
+
+### 2. Days Since Last Sale
+Calculates days since a customer's last purchase.
+
+```DAX
+Days Since Last Sale =
+DATEDIFF(
+    CALCULATE(
+        MAX(Sales_SUS[Date]),
+        Sales_SUS[Customer ID] = Customers[Customer ID]
+    ),
+    TODAY(),
+    DAY
+)
+```
+
+---
+
+### 3. Vendor Reliability Score
+Calculates vendor reliability based on late deliveries.
+
+```DAX
+Reliability Score =
+VAR TotalOrders =
+    CALCULATE(
+        COUNTROWS(POJ_SUS),
+        POJ_SUS[Vendor ID] = Vendors[Vendor ID]
+    )
+VAR LateOrders =
+    CALCULATE(
+        COUNTROWS(POJ_SUS),
+        POJ_SUS[Vendor ID] = Vendors[Vendor ID],
+        POJ_SUS[Delivery Date] > POJ_SUS[Expected Delivery Date]
+    )
+RETURN
+    1 - DIVIDE(LateOrders, TotalOrders)
+```
+
+---
+
+### 4. Inventory Status
+Identifies if SKU inventory is Overstock, Healthy, or At Risk.
+
+```DAX
+Inventory Status =
+VAR AvgSales =
+    CALCULATE(
+        AVERAGE(Sales_SUS[Sales_Quantity]),
+        DATESINPERIOD('Date'[Date], TODAY(), -3, MONTH),
+        Sales_SUS[Sold As (Item ID)] = Item_Info[Sold As (Item ID)]
+    )
+VAR Coverage =
+    DIVIDE(Item_Info[Current Inventory], AvgSales, 0)
+RETURN
+    SWITCH(
+        TRUE(),
+        Coverage >= 6, "Overstock",
+        Coverage >= 2, "Healthy",
+        Coverage < 2, "At Risk",
+        "Unknown"
+    )
+```
+
+
+
+
+
 
