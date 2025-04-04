@@ -1,6 +1,6 @@
 # Unified Power BI Semantic Model: Advanced Business Analytics with DAX & M
 
-## Table of Contents
+## Table of Contentss
 
 - [The Need for a Comprehensive Data Model](#the-need-for-comprehensive-data-model)
 
