@@ -1607,6 +1607,7 @@ SWITCH(
 ```
  ---
 
+## Dashboards & Visuals
 
 
  ![Semantic Model ERD](semantic_diagram.JPG)
