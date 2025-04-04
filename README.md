@@ -19,7 +19,7 @@
   - [Sales Representatives Table (Reps)](#sales-representatives-table-reps)
   - [Invoices & Job IDs](#invoices--job-ids)
   - [USA Sales Ranking Table](#usa-sales-ranking-table)
-- [Model Relationship Diagram](#model-relationship diagram)
+- [Model Relationship Diagram](#model-relationship-diagram)
 - [DAX Measures](#dax-measures)
   - [Sales Amount Last 12 Months (Rolling)](#sales-amount-last-12-months-rolling)
   - [Top N Customers by Sales](#top-n-customers-by-sales)
