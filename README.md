@@ -1226,7 +1226,7 @@ Enables internal vs. market performance comparisons. This link allows the organi
 
 ## DAX Measures
 
-### 1. Sales Amount Last 12 Months (Rolling)
+### Sales Amount Last 12 Months (Rolling)
 Calculates total sales amount for the past rolling 12-month period.
 
 ```DAX
@@ -1237,7 +1237,7 @@ CALCULATE(
 )
 ```
 
-### 2. Top N Customers by Sales
+### Top N Customers by Sales
 Calculates total sales for the top 10 customers by sales volume.
 
 ```DAX
@@ -1248,7 +1248,7 @@ CALCULATE(
 )
 ```
 
-### 3. Purchase to Sales Ratio
+### Purchase to Sales Ratio
 Shows the ratio of total purchase amounts compared to total sales, useful for measuring purchasing efficiency.
 
 ```DAX
@@ -1259,7 +1259,7 @@ DIVIDE(
 )
 ```
 
-### 4. Sales per Representative
+### Sales per Representative
 Calculates total sales attributed to each individual sales representative.
 
 ```DAX
@@ -1270,7 +1270,7 @@ CALCULATE(
 )
 ```
 
-### 5. Year-over-Year (YoY) Sales Growth
+### Year-over-Year (YoY) Sales Growth
 Shows sales growth percentage compared to the same period in the previous year.
 
 ```DAX
@@ -1285,7 +1285,7 @@ RETURN
     DIVIDE(CurrentSales - LastYearSales, LastYearSales)
 ```
 
-### 6. Average Days Between Order and Invoice
+### Average Days Between Order and Invoice
 Measures average days elapsed between the order date (from Sales Orders) and the invoice date (from Sales).
 
 ```DAX
@@ -1305,7 +1305,7 @@ AVERAGEX(
 )
 ```
 
-### 7. SKUs with No Sales (Active Items Only)
+### SKUs with No Sales (Active Items Only)
 Counts the number of active items in inventory that haven't recorded sales yet.
 
 ```DAX
@@ -1319,7 +1319,7 @@ CALCULATE(
 )
 ```
 
-### 8. Stock Coverage in Days
+### Stock Coverage in Days
 Estimates how many days current inventory will last based on average daily sales of the past month.
 
 ```DAX
@@ -1333,7 +1333,7 @@ DIVIDE(
 )
 ```
 
-### 9. Sales Rank by Part Number
+### Sales Rank by Part Number
 Ranks each product based on total sales amounts within the catalog.
 
 ```DAX
@@ -1347,7 +1347,7 @@ RANKX(
 )
 ```
 
-### 10. Repeat Customers Percentage
+### Repeat Customers Percentage
 Calculates the percentage of customers who made repeat purchases compared to the previous month.
 
 ```DAX
@@ -1375,7 +1375,7 @@ RETURN
     DIVIDE(Overlap, CustomersThisPeriod)
 ```
 
-### 11. Customer Cohort Analysis (Monthly)
+### Customer Cohort Analysis (Monthly)
 Shows total sales from customers grouped by their first purchase month.
 
 ```DAX
@@ -1394,7 +1394,7 @@ CALCULATE(
 
 ---
 
-### 12. Customer Churn Rate
+### Customer Churn Rate
 Identifies customers who bought in previous periods but not in the current period.
 
 ```DAX
@@ -1418,7 +1418,7 @@ RETURN
 
 ---
 
-### 13. Dynamic Pareto Segmentation (ABC)
+### Dynamic Pareto Segmentation (ABC)
 Classifies SKUs into A, B, C categories based on cumulative sales.
 
 ```DAX
@@ -1445,7 +1445,7 @@ RETURN
 
 ---
 
-### 14. Sales Representative Dynamic Ranking
+### Sales Representative Dynamic Ranking
 Ranks sales representatives based on total sales.
 
 ```DAX
