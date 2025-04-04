@@ -1216,7 +1216,156 @@ Enables internal vs. market performance comparisons. This link allows the organi
 
 ## DAX Measures
 
-### 1. Customer Cohort Analysis (Monthly)
+### 1. Sales Amount Last 12 Months (Rolling)
+Calculates total sales amount for the past rolling 12-month period.
+
+```DAX
+Sales Amount L12M = 
+CALCULATE(
+    [Total Sales Amount],
+    DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -12, MONTH)
+)
+```
+
+### 2. Top N Customers by Sales
+Calculates total sales for the top 10 customers by sales volume.
+
+```DAX
+Top Customer Sales = 
+CALCULATE(
+    [Total Sales Amount],
+    TOPN(10, Customers, [Total Sales Amount])
+)
+```
+
+### 3. Purchase to Sales Ratio
+Shows the ratio of total purchase amounts compared to total sales, useful for measuring purchasing efficiency.
+
+```DAX
+Purchase to Sales Ratio = 
+DIVIDE(
+    SUM(PJ_SUS[Purchase_Amount]),
+    SUM(Sales_SUS[Sales_Amount])
+)
+```
+
+### 4. Sales per Representative
+Calculates total sales attributed to each individual sales representative.
+
+```DAX
+Sales per Rep = 
+CALCULATE(
+    [Total Sales Amount],
+    ALLEXCEPT(Reps, Reps[Rep_ID])
+)
+```
+
+### 5. Year-over-Year (YoY) Sales Growth
+Shows sales growth percentage compared to the same period in the previous year.
+
+```DAX
+YoY Sales Growth % =
+VAR CurrentSales = [Total Sales Amount]
+VAR LastYearSales =
+    CALCULATE(
+        [Total Sales Amount],
+        SAMEPERIODLASTYEAR('Date'[Date])
+    )
+RETURN
+    DIVIDE(CurrentSales - LastYearSales, LastYearSales)
+```
+
+### 6. Average Days Between Order and Invoice
+Measures average days elapsed between the order date (from Sales Orders) and the invoice date (from Sales).
+
+```DAX
+Avg Days Order to Invoice = 
+AVERAGEX(
+    SUMMARIZE(
+        'Invoices_JobIDs_Bridge',
+        'Invoices_JobIDs_Bridge'[Job_ID],
+        "DaysDiff",
+            DATEDIFF(
+                CALCULATE(MIN(SO_SUS[Date])),
+                CALCULATE(MIN(Sales_SUS[Date])),
+                DAY
+            )
+    ),
+    [DaysDiff]
+)
+```
+
+### 7. SKUs with No Sales (Active Items Only)
+Counts the number of active items in inventory that haven't recorded sales yet.
+
+```DAX
+SKUs with No Sales = 
+CALCULATE(
+    DISTINCTCOUNT(Item_Info[SUS#]),
+    EXCEPT(
+        VALUES(Item_Info[SUS#]),
+        VALUES(Sales_SUS[Sold As (Item ID)])
+    )
+)
+```
+
+### 8. Stock Coverage in Days (Simplified)
+Estimates how many days current inventory will last based on average daily sales of the past month.
+
+```DAX
+Stock Coverage (Days) = 
+DIVIDE(
+    [Total Inventory],
+    AVERAGEX(
+        DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -30, DAY),
+        [Total Sales Amount]
+    ) / 30
+)
+```
+
+### 9. Sales Rank by Part Number (Internal)
+Ranks each product based on total sales amounts within the catalog.
+
+```DAX
+Sales Rank Internal =
+RANKX(
+    ALL(Item_Info),
+    [Total Sales Amount],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+### 10. Repeat Customers Percentage
+Calculates the percentage of customers who made repeat purchases compared to the previous month.
+
+```DAX
+Repeat Customer % = 
+VAR CustomersThisPeriod =
+    DISTINCTCOUNT(Sales_SUS[Customer ID])
+VAR CustomersPrevious =
+    CALCULATE(
+        DISTINCTCOUNT(Sales_SUS[Customer ID]),
+        PREVIOUSMONTH('Date'[Date])
+    )
+VAR Overlap =
+    CALCULATE(
+        DISTINCTCOUNT(Sales_SUS[Customer ID]),
+        FILTER(
+            Sales_SUS,
+            Sales_SUS[Customer ID] IN
+            CALCULATETABLE(
+                VALUES(Sales_SUS[Customer ID]),
+                PREVIOUSMONTH('Date'[Date])
+            )
+        )
+    )
+RETURN
+    DIVIDE(Overlap, CustomersThisPeriod)
+```
+
+### 11. Customer Cohort Analysis (Monthly)
 Shows total sales from customers grouped by their first purchase month.
 
 ```DAX
@@ -1235,7 +1384,7 @@ CALCULATE(
 
 ---
 
-### 2. Customer Churn Rate
+### 12. Customer Churn Rate
 Identifies customers who bought in previous periods but not in the current period.
 
 ```DAX
@@ -1259,7 +1408,7 @@ RETURN
 
 ---
 
-### 3. Dynamic Pareto Segmentation (ABC)
+### 13. Dynamic Pareto Segmentation (ABC)
 Classifies SKUs into A, B, C categories based on cumulative sales.
 
 ```DAX
@@ -1286,7 +1435,7 @@ RETURN
 
 ---
 
-### 4. Sales Representative Dynamic Ranking
+### 14. Sales Representative Dynamic Ranking
 Ranks sales representatives based on total sales.
 
 ```DAX
