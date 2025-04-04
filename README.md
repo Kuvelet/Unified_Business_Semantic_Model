@@ -1605,6 +1605,19 @@ SWITCH(
     "Poor"
 )
 ```
+ ---
+
+
+
+ ![Semantic Model ERD](semantic_diagram.JPG)
+
+![Semantic Model ERD](semantic_diagram.JPG)
+
+![Semantic Model ERD](semantic_diagram.JPG)
+
+![Semantic Model ERD](semantic_diagram.JPG)
+
+![Semantic Model ERD](semantic_diagram.JPG)
 
 
 
