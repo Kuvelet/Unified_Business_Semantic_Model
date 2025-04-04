@@ -1241,6 +1241,7 @@ CALCULATE(
     DATESINPERIOD('Date'[Date], MAX('Date'[Date]), -12, MONTH)
 )
 ```
+---
 
 ### Top N Customers by Sales
 Calculates total sales for the top 10 customers by sales volume.
@@ -1252,6 +1253,7 @@ CALCULATE(
     TOPN(10, Customers, [Total Sales Amount])
 )
 ```
+---
 
 ### Purchase to Sales Ratio
 Shows the ratio of total purchase amounts compared to total sales, useful for measuring purchasing efficiency.
@@ -1263,6 +1265,7 @@ DIVIDE(
     SUM(Sales_SUS[Sales_Amount])
 )
 ```
+---
 
 ### Sales per Representative
 Calculates total sales attributed to each individual sales representative.
@@ -1274,6 +1277,7 @@ CALCULATE(
     ALLEXCEPT(Reps, Reps[Rep_ID])
 )
 ```
+---
 
 ### Year-over-Year (YoY) Sales Growth
 Shows sales growth percentage compared to the same period in the previous year.
@@ -1289,6 +1293,7 @@ VAR LastYearSales =
 RETURN
     DIVIDE(CurrentSales - LastYearSales, LastYearSales)
 ```
+---
 
 ### Average Days Between Order and Invoice
 Measures average days elapsed between the order date (from Sales Orders) and the invoice date (from Sales).
