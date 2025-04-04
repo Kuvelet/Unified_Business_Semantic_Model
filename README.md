@@ -1046,7 +1046,7 @@ in
 
 ---
 
-## Model Relationships
+## Model Relationship Diagram
 
 This section provides a comprehensive explanation of how all core tables in the semantic model are connected. These relationships enable a powerful and unified analytics framework for reporting across sales, procurement, inventory, finance, and catalog dimensions.
 
