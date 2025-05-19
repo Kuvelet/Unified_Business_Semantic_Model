@@ -21,6 +21,8 @@
   - [USA Sales Ranking Table](#usa-sales-ranking-table)
 - [Model Relationship Diagram](#model-relationship-diagram)
 - [DAX Measures](#dax-measures)
+  - [24 Month Total Sales by Item for Selected Customers and Locations](#24-month-total-sales-by-item-for-selected-customers-and-locations)
+  - [Latest Sales Info by Customer and Item](#latest-sales-info-by-customer-and-item)
   - [Sales Amount Last 12 Months (Rolling)](#sales-amount-last-12-months-rolling)
   - [Top N Customers by Sales](#top-n-customers-by-sales)
   - [Purchase to Sales Ratio](#purchase-to-sales-ratio)
@@ -1230,6 +1232,90 @@ Enables internal vs. market performance comparisons. This link allows the organi
 
 
 ## DAX Measures
+
+### 24 Month Total Sales by Item for Selected Customers and Locations
+
+This DAX query calculates and ranks the total sales quantity over the last 24 months for each item, filtering for specific customers and limiting USPAAU sales to shipments only in NJ, NY, and MD.
+
+```DAX
+EVALUATE
+SUMMARIZECOLUMNS (
+    Item_Info[Sold As (Item ID)],
+
+    // Filter by the last 24 months
+    FILTER (
+        Calender,
+        Calender[Date] >= EDATE(TODAY(), -24) &&
+        Calender[Date] <= TODAY()
+    ),
+
+    // Calculate total sales in the last 24 months
+    "Total_Sales_24M",
+    CALCULATE (
+        SUM ( Sales_SUS[Sales_Quantity] ),
+        
+        // Include only specific customers or a subset of 'Parts Authority' based on location
+        FILTER (
+            Sales_SUS,
+            RELATED(Customers[Customer ID]) IN { "USWIPA", "USSAMU", "USARCH", "USCMAU", "USTRAN" }
+            ||
+            (
+                RELATED(Customers[Customer ID]) = "USPAAU" &&
+                Sales_SUS[Ship To State] IN { "NJ", "NY", "MD" }
+            )
+        )
+    )
+)
+ORDER BY [Total_Sales_24M] DESC
+```
+
+---
+
+### Latest Sales Info by Customer and Item
+
+This DAX query returns the most recent non-credit memo sales record (by date and invoice number) for each item purchased by customer US123, including details like date, unit price, quantity, invoice number, and customer PO.
+
+```DAX
+EVALUATE
+FILTER( 
+    SELECTCOLUMNS(
+        GENERATE(
+            SELECTCOLUMNS(
+                SUMMARIZECOLUMNS(
+                    Sales_SUS[Customer ID],
+                    Sales_SUS[Sold AS (Item ID)]
+                ),
+                "Customer_ID", Sales_SUS[Customer ID],
+                "Item_ID", Sales_SUS[Sold AS (Item ID)]
+            ),
+            TOPN(
+                1,
+                FILTER(
+                    Sales_SUS,
+                    Sales_SUS[Customer ID] = [Customer_ID] &&
+                    Sales_SUS[Sold AS (Item ID)] = [Item_ID] &&
+                    Sales_SUS[Credit Memo] = FALSE
+                ),
+                Sales_SUS[Date], DESC,
+				Sales_SUS[Invoice/CM #], DESC
+            )
+        ),
+        "Customer ID", Sales_SUS[Customer ID],
+        "Item ID", Sales_SUS[Sold AS (Item ID)],
+        "Date", FORMAT(Sales_SUS[Date], "yyyy-mm-dd"),
+        "Sales Unit Price", FORMAT(Sales_SUS[Sales_Unit Price], "$#,##0.00"),
+        "Sales Quantity", Sales_SUS[Sales_Quantity],
+        "Invoice CM", Sales_SUS[Invoice/CM #],
+        "Customer PO", Sales_SUS[Customer PO]
+    ),
+	// change cust id here
+    [Customer ID] = "USPAAU"
+)
+ORDER BY
+    [Customer ID], [Item ID]
+```
+
+---
 
 ### Sales Amount Last 12 Months (Rolling)
 Calculates total sales amount for the past rolling 12-month period.
